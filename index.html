@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2026 九州跨世代自由行規劃工作室 & 深度行車評估 | Kyushu Road Trip Planner</title>
+  <meta name="description" content="專為 2026 九州跨世代自由行設計之純前端規劃工作室。深度整合《九州五日行程深度評估報告》，包含車程自動計算、雙世代需求適配（40~60歲長輩 vs 25~35歲年輕人）與 10 個月嬰兒貼心護理。">
+
+  <!-- Leaflet CSS for Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+  <!-- Core App Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- 列印專用標頭 (僅在紙本/PDF列印時顯示) -->
+  <div class="print-header-banner">
+    <h1 style="font-size: 20pt; margin-bottom: 6pt;">🗾 2026 九州跨世代自由行旅遊隨身手冊</h1>
+    <p style="font-size: 11pt; color: #444;">出發日期：2026/02/24～02/28 | 跨世代舒活・嬰兒照護・車程精算完整指南</p>
+  </div>
+
+  <!-- 網站頂部 Header -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="header-brand">
+        <div class="brand-title-wrap">
+          <div class="brand-icon">🗾</div>
+          <div>
+            <h1 class="brand-title">2026 九州跨世代自由行規劃工作室</h1>
+            <div class="brand-subtitle">KYUSHU ROAD TRIP PLANNER & MULTI-GEN TRANSIT EVALUATION</div>
+          </div>
+        </div>
+
+        <div class="header-quick-actions">
+          <button class="btn btn-outline btn-sm" id="btn-copy-itinerary" title="複製排版文字至 LINE / Notion">📋 複製行程文字</button>
+          <button class="btn btn-outline btn-sm" id="btn-print-itinerary" title="列印或另存為 PDF 手冊">🖨️ 列印手冊</button>
+          <button class="btn btn-outline btn-sm" id="btn-export-json" title="匯出 JSON 備份檔">📤 匯出備份</button>
+          <button class="btn btn-outline btn-sm" id="btn-import-json" title="匯入 JSON 備份檔">📥 匯入備份</button>
+        </div>
+      </div>
+
+      <div class="header-meta-chips">
+        <div class="meta-chip"><span>📅</span> <strong>旅行日期：</strong> 2026/02/24～02/28 (228 連假)</div>
+        <div class="meta-chip"><span>🧓</span> <strong>熟齡長輩 (40~60歲)：</strong> 步數監控・平緩動線・溫泉名湯・熱湯御膳</div>
+        <div class="meta-chip"><span>📸</span> <strong>年輕潮流 (25~35歲)：</strong> IG美拍絕景・排隊話題美食・實物大鋼彈・特色列車</div>
+        <div class="meta-chip"><span>👶</span> <strong>10個月大嬰兒：</strong> 哺乳室熱水・推車/背巾切換・車程顛簸防護</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主導覽列 (Sticky Navigation Bar) -->
+  <nav class="main-nav-bar">
+    <div class="container">
+      <div class="nav-tabs">
+        <button class="nav-tab-btn active" data-target="section-planner">🗺️ 自訂行程工作室</button>
+        <button class="nav-tab-btn" data-target="section-comparison">📊 5頁報告深度對照</button>
+        <button class="nav-tab-btn" data-target="section-care">🛡️ 特殊成員防護錦囊</button>
+        <button class="nav-tab-btn" data-target="section-toolkit">🧰 旅行實用工具箱</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 世代視角切換器 (Perspective Switcher) -->
+  <section class="perspective-bar">
+    <div class="container perspective-inner">
+      <div class="perspective-label">
+        <span>👥</span> <strong>切換世代需求專注視角：</strong>
+      </div>
+      <div class="perspective-pills">
+        <button class="perspective-btn active" data-pers="all">👥 跨世代全覽 (並列對齊)</button>
+        <button class="perspective-btn" data-pers="elder">🧓 40~60歲 熟齡舒活視角 (步數/坡度/溫泉)</button>
+        <button class="perspective-btn" data-pers="youth">📸 25~35歲 年輕潮流美拍 (打卡/美食/購物)</button>
+        <button class="perspective-btn" data-pers="infant">👶 10個月 寶寶照護視角 (熱水/推車/車程)</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 經典範本選擇區 (Preset Itinerary Bar) -->
+  <section class="preset-section">
+    <div class="container">
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+        <h2 style="font-size:1.15rem; font-weight:800; color:var(--color-slate-900);">✨ 快速載入行程範本 (點擊即刻切換套用)</h2>
+        <button class="btn btn-outline btn-sm" id="btn-reset-preset">🔄 重置當前範本</button>
+      </div>
+      <div class="preset-card-grid" id="preset-cards-container">
+        <!-- 由 app.js 動態渲染 5 大經典範本 -->
+      </div>
+    </div>
+  </section>
+
+  <!-- 核心規劃區塊 (Planner Section) -->
+  <main class="container" id="section-planner" style="padding-top: 1.5rem; padding-bottom: 2.5rem;">
+    <!-- 工具列 -->
+    <div class="studio-toolbar">
+      <div class="studio-title-group">
+        <span style="font-size:1.5rem;">🛠️</span>
+        <h2 class="studio-main-title">客製行程排程編輯台</h2>
+      </div>
+      <div class="studio-actions-group">
+        <span style="font-size:0.85rem; color:var(--color-slate-500);">💡 支援自由拖曳調序、自訂地點、停留時長調節與自動推算全日時間表</span>
+      </div>
+    </div>
+
+    <!-- 規劃區兩欄配置 -->
+    <div class="planner-layout">
+      <!-- 左欄：天數切換與時間軸 -->
+      <div class="planner-main-column">
+        <!-- 天數切換分頁列 -->
+        <div class="day-switcher-bar" id="day-tabs-container">
+          <!-- 由 app.js 動態渲染 Day 1, Day 2... + 新增按鈕 -->
+        </div>
+
+        <!-- 當日頂部資訊面板 (標題、出發時間、車程統計、拉車警報) -->
+        <div id="day-header-container">
+          <!-- 由 app.js 動態渲染 -->
+        </div>
+
+        <!-- 景點與交通連線時間軸 -->
+        <div id="timeline-render-container">
+          <!-- 由 app.js 動態渲染 -->
+        </div>
+      </div>
+
+      <!-- 右欄：側邊地圖與自駕提醒面板 -->
+      <aside class="planner-sidebar">
+        <!-- 路線地圖卡片 -->
+        <div class="sidebar-card">
+          <div class="sidebar-card-title">
+            <span>🗺️ 本日自駕路網軌跡</span>
+            <span style="font-size:0.75rem; color:var(--color-slate-500); font-weight:normal;">Leaflet 即時聯動</span>
+          </div>
+          <div id="kyushu-map"></div>
+          <div class="map-tools-bar">
+            <span>點擊地標可直接開啟 Google Maps 導航</span>
+          </div>
+        </div>
+
+        <!-- 九州行車與速域提醒卡片 -->
+        <div class="sidebar-card" style="background:#f8fafc; border-left:4px solid var(--color-primary);">
+          <div class="sidebar-card-title" style="font-size:1rem;">
+            <span>🚗 九州自駕與速域模型指引</span>
+          </div>
+          <ul style="font-size:0.8rem; color:var(--color-slate-600); line-height:1.6; padding-left:1.2rem; display:flex; flex-direction:column; gap:0.4rem;">
+            <li><strong>大分道/九州道高速：</strong> 均速約 75~85 km/h，跨縣迅速。</li>
+            <li><strong>高千穗/阿蘇山區路段：</strong> 國道 218/325 號多彎道陡坡，均速僅 40~45 km/h，繞行係數達 1.5x。</li>
+            <li><strong>福岡/熊本市區：</strong> 紅綠燈密集，天神與博多周邊均速約 22~26 km/h。</li>
+            <li><strong>如廁律建議：</strong> 長輩與幼兒同行，每行車 60~90 分鐘請務必安排道之驛或高速 SA 休息站。</li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- 5 頁報告深度對照區塊 (Section Comparison) -->
+  <section class="container comparison-section" id="section-comparison">
+    <div class="section-header-block">
+      <h2 class="section-title">📊 九州五日行程深度評估報告 核心方案對照</h2>
+      <p class="section-subtitle">客觀數據橫向評估：原行程大折返風險 vs 飛熊本順路度與連假票價深度分析</p>
+    </div>
+
+    <!-- 方案三表格對照容器 -->
+    <div id="report-comparison-container">
+      <!-- 由 app.js 動態渲染 -->
+    </div>
+
+    <!-- 順路性與票價深入解析卡片 -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1.25rem; margin-top:1.5rem;">
+      <div style="background:#fff; border:1px solid var(--color-slate-200); border-radius:var(--radius-md); padding:1.25rem; box-shadow:var(--shadow-sm);">
+        <h3 style="font-size:1.1rem; font-weight:800; color:var(--color-slate-900); margin-bottom:0.5rem; display:flex; align-items:center; gap:0.5rem;">
+          <span>🎯</span> 為什麼「改飛熊本」順路度壓倒性勝出？
+        </h3>
+        <p style="font-size:0.875rem; color:var(--color-slate-600); line-height:1.6;">
+          熊本機場（KMJ）位處九州正中心，緊鄰阿蘇與宮崎邊界。從熊本機場前往高千穗峽<strong>僅 60～65 公里（車程 1.3～1.5 小時）</strong>，比起從別府（130km / 2.5小時）或福岡（160km / 近3小時）大幅<strong>節省 50% 以上車程</strong>！若採「福岡進、熊本出」雙點進出，完全不走回頭路，徹底消滅 Day 2 的 8 小時地獄拉車。
+        </p>
+      </div>
+
+      <div style="background:#fff; border:1px solid var(--color-slate-200); border-radius:var(--radius-md); padding:1.25rem; box-shadow:var(--shadow-sm);">
+        <h3 style="font-size:1.1rem; font-weight:800; color:var(--color-slate-900); margin-bottom:0.5rem; display:flex; align-items:center; gap:0.5rem;">
+          <span>✈️</span> 飛熊本機票會比較便宜嗎？
+        </h3>
+        <p style="font-size:0.875rem; color:var(--color-slate-600); line-height:1.6;">
+          <strong>結論是不會比較便宜。</strong> 台北直飛熊本目前由華航與星宇執飛，無廉航直飛，228 連假個人票價落在 NT$ 19,000～25,000，與傳統航空飛福岡持平或略高。但以<strong>「減少家人極度疲憊、免除幼兒哭鬧暈車與長輩膝蓋受損」</strong>的無形代價來看，性價比具壓倒性優勢！
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 特殊成員防護錦囊 (Care Section) -->
+  <section class="container" id="section-care" style="padding: 2rem 1.25rem 3rem;">
+    <div class="section-header-block">
+      <h2 class="section-title">🛡️ 特殊成員必備防護清單 & 降級避險錦囊</h2>
+      <p class="section-subtitle">若維持原團體行程或自駕出遊，10 個月大嬰兒與拄拐杖長輩的關鍵守護法則</p>
+    </div>
+
+    <div id="care-checklist-container">
+      <!-- 由 app.js 動態渲染 -->
+    </div>
+  </section>
+
+  <!-- 旅行實用工具箱 (Toolkit Section) -->
+  <section class="container" id="section-toolkit" style="padding: 2rem 1.25rem 4rem;">
+    <div class="section-header-block">
+      <h2 class="section-title">🧰 旅行隨身工具箱</h2>
+      <p class="section-subtitle">三世代行李打包清單、日幣匯率即時試算與早春穿搭自駕守則</p>
+    </div>
+
+    <!-- 工具箱分頁標籤 -->
+    <div class="toolkit-tabs-wrap">
+      <button class="toolkit-tab-btn active" data-toolkit-tab="packing">🎒 智慧行李清單</button>
+      <button class="toolkit-tab-btn" data-toolkit-tab="currency">💴 匯率換算 & 記帳</button>
+      <button class="toolkit-tab-btn" data-toolkit-tab="weather">🌤️ 2月氣候穿搭攻略</button>
+    </div>
+
+    <!-- 1. 行李清單面板 -->
+    <div class="toolkit-panel" id="toolkit-panel-packing" style="display:block;">
+      <div style="background:#fff; border:1px solid var(--color-slate-200); border-radius:var(--radius-md); padding:1.25rem; box-shadow:var(--shadow-sm);">
+        <p style="font-size:0.9rem; color:var(--color-slate-600); margin-bottom:1rem;">
+          根據評估報告特別整理的長輩（Ta-Da 拐杖椅、四腳手杖）、嬰兒（70°C 保溫杯、人體工學背巾、常溫粥包）必備物品，點擊勾選自動儲存：
+        </p>
+        <div id="packing-list-container">
+          <!-- 由 app.js 動態渲染 -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 匯率試算面板 -->
+    <div class="toolkit-panel" id="toolkit-panel-currency" style="display:none;">
+      <div style="background:#fff; border:1px solid var(--color-slate-200); border-radius:var(--radius-md); padding:1.5rem; max-width:600px; margin:0 auto; box-shadow:var(--shadow-sm);">
+        <h3 style="font-size:1.15rem; font-weight:800; margin-bottom:1rem;">💴 日幣與台幣即時換算</h3>
+        <div style="display:flex; flex-direction:column; gap:1rem;">
+          <div>
+            <label style="font-size:0.85rem; font-weight:600; color:var(--color-slate-600);">自訂匯率 (1 JPY = ? TWD)：</label>
+            <input type="number" id="input-jpy-rate" step="0.001" style="width:100%; padding:0.5rem; border:1px solid var(--color-slate-300); border-radius:6px; font-weight:700;">
+          </div>
+          <div>
+            <label style="font-size:0.85rem; font-weight:600; color:var(--color-slate-600);">輸入日幣金額 (¥ JPY)：</label>
+            <input type="number" id="calc-jpy-input" placeholder="例如：15000" style="width:100%; padding:0.6rem; font-size:1.1rem; border:1px solid var(--color-slate-300); border-radius:6px; font-weight:700;">
+          </div>
+          <div style="background:var(--color-primary-light); padding:1rem; border-radius:8px; text-align:center;">
+            <div style="font-size:0.85rem; color:var(--color-primary); font-weight:600;">換算新台幣</div>
+            <div id="calc-twd-output" style="font-size:1.75rem; font-weight:800; color:var(--color-primary-hover); margin-top:0.25rem;">約 NT$ 0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. 氣候穿搭攻略面板 -->
+    <div class="toolkit-panel" id="toolkit-panel-weather" style="display:none;">
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:1.25rem;">
+        <div style="background:#fff; border:1px solid var(--color-slate-200); border-radius:var(--radius-md); padding:1.25rem;">
+          <h3 style="font-size:1.1rem; font-weight:800; color:var(--color-slate-900); margin-bottom:0.5rem;">🌡️ 九州 2 月下旬早春氣溫概況</h3>
+          <p style="font-size:0.85rem; color:var(--color-slate-600); line-height:1.6;">
+            ● 福岡平地氣溫約 6°C ~ 14°C，早晚偏涼需外套。<br>
+            ● 湯布院、阿蘇火山、高千穗山區海拔較高，低溫可下探 0°C ~ 3°C，常有強烈冷風吹拂。<br>
+            ● 室內與遊覽車暖氣充足（約 24°C），極度推薦「洋蔥式多層穿法」。
+          </p>
+        </div>
+
+        <div style="background:#fff; border:1px solid var(--color-slate-200); border-radius:var(--radius-md); padding:1.25rem;">
+          <h3 style="font-size:1.1rem; font-weight:800; color:var(--color-slate-900); margin-bottom:0.5rem;">🧣 嬰兒與長輩防寒黃金法則</h3>
+          <p style="font-size:0.85rem; color:var(--color-slate-600); line-height:1.6;">
+            ● <strong>嬰兒：</strong> 發熱連身衣 + 刷毛長褲 + 防風防潑水連帽斗篷（進出車內秒脫穿免吵醒寶寶）。<br>
+            ● <strong>長輩：</strong> 輕量羽絨外套 + 發熱保暖圍巾 + 止滑健走厚襪（防範足湯起身著涼）。<br>
+            ● <strong>年輕人：</strong> 亮色大衣好拍 IG 美照，相機行動電源隨身保暖防耗電。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 全日多天數紙本手冊列印容器 (僅列印時顯示，螢幕瀏覽時隱藏) -->
+  <div id="print-full-itinerary" class="print-handbook-container"></div>
+
+  <!-- 頁腳 Footer -->
+  <footer style="background:#0f172a; color:#94a3b8; padding:2.5rem 0 2rem; font-size:0.85rem; border-top:1px solid #1e293b;">
+    <div class="container" style="display:flex; flex-direction:column; gap:1rem; align-items:center; text-align:center;">
+      <div style="font-weight:700; color:#fff; font-size:1rem;">🗾 2026 九州跨世代自由行規劃工作室 (Kyushu Road Trip Planner)</div>
+      <p style="max-width:700px; line-height:1.6;">
+        本系統整合真實九州跨縣路網（大分道、九州道、國道325/218）速域模型與《九州五日行程深度評估報告》。純前端離線架構，保護您的隱私資料。
+      </p>
+      <div style="font-size:0.75rem; color:#64748b;">
+        © 2026 Kyushu Road Trip Planner. All Rights Reserved. Pure Frontend Edition.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Leaflet JS (with graceful fallback) -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- Application Datasets & Main Logic -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+
+</body>
+</html>

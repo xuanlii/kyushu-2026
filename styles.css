@@ -1,0 +1,1397 @@
+/* ==========================================================================
+   2026 九州跨世代自由行與行程評估系統 - 樣式表 (styles.css)
+   現代感設計系統：深淺適配、玻璃擬物 (Glassmorphism)、RWD 響應式與專業列印排版
+   ========================================================================== */
+
+:root {
+  /* 品牌核心色彩 */
+  --color-primary: #0284c7;
+  --color-primary-hover: #0369a1;
+  --color-primary-light: #e0f2fe;
+  
+  --color-volcano: #ea580c;
+  --color-volcano-light: #ffedd5;
+  
+  --color-elder: #059669;
+  --color-elder-light: #d1fae5;
+  
+  --color-youth: #e11d48;
+  --color-youth-light: #ffe4e6;
+  
+  --color-baby: #d97706;
+  --color-baby-light: #fef3c7;
+  
+  --color-danger: #dc2626;
+  --color-danger-light: #fee2e2;
+  
+  --color-warning: #b45309;
+  --color-warning-light: #fffbeb;
+  
+  --color-dark: #0f172a;
+  --color-slate-800: #1e293b;
+  --color-slate-700: #334155;
+  --color-slate-600: #475569;
+  --color-slate-500: #64748b;
+  --color-slate-400: #94a3b8;
+  --color-slate-200: #e2e8f0;
+  --color-slate-100: #f1f5f9;
+  --color-slate-50: #f8fafc;
+  --color-white: #ffffff;
+  
+  /* 介面尺寸與圓角 */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+  
+  /* 陰影效果 */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
+}
+
+/* 全域重設 */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang TC", "Heiti TC", "Microsoft JhengHei", sans-serif;
+  color: var(--color-slate-800);
+  background-color: #f8fafc;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 容器與版面配置 */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+/* 頂部導航與標頭 */
+.site-header {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0369a1 100%);
+  color: var(--color-white);
+  padding: 2.5rem 0 2rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+
+.site-header::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(234, 88, 12, 0.15) 0%, rgba(2, 132, 199, 0.05) 50%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.header-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  position: relative;
+  z-index: 1;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.brand-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.brand-icon {
+  font-size: 2.5rem;
+  background: rgba(255, 255, 255, 0.12);
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+}
+
+.brand-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.brand-subtitle {
+  font-size: 0.875rem;
+  color: var(--color-slate-400);
+  font-weight: 500;
+  margin-top: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.header-quick-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.header-meta-chips {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(6px);
+}
+
+/* 主分頁導覽列 (Sticky Tabs) */
+.main-nav-bar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-slate-200);
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.05);
+}
+
+.nav-tabs {
+  display: flex;
+  align-items: center;
+  overflow-x: auto;
+  scrollbar-width: none;
+  gap: 0.5rem;
+  padding: 0.6rem 0;
+}
+
+.nav-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.nav-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.15rem;
+  border: none;
+  background: transparent;
+  color: var(--color-slate-600);
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+}
+
+.nav-tab-btn:hover {
+  background: var(--color-slate-100);
+  color: var(--color-slate-900);
+}
+
+.nav-tab-btn.active {
+  background: var(--color-primary-light);
+  color: var(--color-primary-hover);
+  box-shadow: inset 0 0 0 1px rgba(2, 132, 199, 0.3);
+}
+
+/* 世代視角切換器 (Perspective Switcher) */
+.perspective-bar {
+  background: var(--color-white);
+  border-bottom: 1px solid var(--color-slate-200);
+  padding: 0.75rem 0;
+}
+
+.perspective-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.perspective-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-slate-700);
+}
+
+.perspective-pills {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.perspective-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-slate-200);
+  background: var(--color-white);
+  color: var(--color-slate-700);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.perspective-btn:hover {
+  border-color: var(--color-slate-400);
+  background: var(--color-slate-50);
+}
+
+.perspective-btn.active[data-pers="all"] {
+  background: #1e293b;
+  color: #fff;
+  border-color: #1e293b;
+}
+
+.perspective-btn.active[data-pers="elder"] {
+  background: var(--color-elder);
+  color: #fff;
+  border-color: var(--color-elder);
+}
+
+.perspective-btn.active[data-pers="youth"] {
+  background: var(--color-youth);
+  color: #fff;
+  border-color: var(--color-youth);
+}
+
+.perspective-btn.active[data-pers="infant"] {
+  background: var(--color-baby);
+  color: #fff;
+  border-color: var(--color-baby);
+}
+
+/* 預設行程範本選擇列 (Preset Picker Bar) */
+.preset-section {
+  padding: 1.5rem 0 1rem;
+}
+
+.preset-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
+.preset-card {
+  background: var(--color-white);
+  border: 2px solid var(--color-slate-200);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.15rem;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.75rem;
+  position: relative;
+}
+
+.preset-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
+}
+
+.preset-card.active {
+  border-color: var(--color-primary);
+  background: linear-gradient(to bottom, #f0f9ff, #ffffff);
+  box-shadow: 0 0 0 2px var(--color-primary), var(--shadow-md);
+}
+
+.preset-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.preset-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-slate-900);
+  line-height: 1.35;
+}
+
+.preset-desc {
+  font-size: 0.8rem;
+  color: var(--color-slate-600);
+  line-height: 1.5;
+}
+
+.preset-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--color-slate-500);
+  border-top: 1px dashed var(--color-slate-200);
+  padding-top: 0.5rem;
+}
+
+/* 徽章 Badge 樣式 */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.badge-danger {
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+}
+
+.badge-success {
+  background: var(--color-elder-light);
+  color: var(--color-elder);
+  border: 1px solid rgba(5, 150, 105, 0.2);
+}
+
+.badge-primary {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  border: 1px solid rgba(2, 132, 199, 0.2);
+}
+
+.badge-warning {
+  background: var(--color-warning-light);
+  color: var(--color-warning);
+  border: 1px solid rgba(217, 119, 6, 0.2);
+}
+
+/* 自訂工作室控制列 (Studio Toolbar) */
+.studio-toolbar {
+  background: var(--color-white);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-slate-200);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.studio-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.studio-main-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--color-slate-900);
+}
+
+.studio-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* 通用按鈕 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: var(--color-white);
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-hover);
+}
+
+.btn-success {
+  background: var(--color-elder);
+  color: var(--color-white);
+}
+
+.btn-success:hover {
+  background: #047857;
+}
+
+.btn-volcano {
+  background: var(--color-volcano);
+  color: var(--color-white);
+}
+
+.btn-volcano:hover {
+  background: #c2410c;
+}
+
+.btn-outline {
+  background: var(--color-white);
+  border-color: var(--color-slate-300);
+  color: var(--color-slate-700);
+}
+
+.btn-outline:hover {
+  background: var(--color-slate-50);
+  border-color: var(--color-slate-400);
+}
+
+.btn-sm {
+  padding: 0.35rem 0.65rem;
+  font-size: 0.8rem;
+}
+
+.btn-icon {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border-radius: var(--radius-sm);
+}
+
+/* 核心版面配置 (兩欄式：主排程 vs 側邊地圖/概覽) */
+.planner-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .planner-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 天數分頁條 (Day Switcher Tabs) */
+.day-switcher-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  scrollbar-width: thin;
+}
+
+.day-tab-btn {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-slate-200);
+  background: var(--color-white);
+  cursor: pointer;
+  min-width: 85px;
+  transition: all var(--transition-fast);
+}
+
+.day-tab-btn:hover {
+  border-color: var(--color-primary);
+  background: var(--color-slate-50);
+}
+
+.day-tab-btn.active {
+  background: #1e293b;
+  border-color: #1e293b;
+  color: var(--color-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.day-tab-num {
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.day-tab-sub {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+.day-tab-btn.active .day-tab-sub {
+  color: var(--color-primary-light);
+}
+
+.day-add-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  border: 2px dashed var(--color-slate-300);
+  background: transparent;
+  color: var(--color-slate-600);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.day-add-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+/* 單日頂部資訊面板 (Day Header Card) */
+.day-header-card {
+  background: var(--color-white);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-slate-200);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.day-header-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.day-title-input {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--color-slate-900);
+  border: 1px solid transparent;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  flex: 1;
+  min-width: 250px;
+}
+
+.day-title-input:hover {
+  border-color: var(--color-slate-300);
+  background: var(--color-slate-50);
+}
+
+.day-title-input:focus {
+  border-color: var(--color-primary);
+  background: var(--color-white);
+  outline: none;
+}
+
+.day-timing-control {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--color-slate-100);
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.day-timing-control input[type="time"] {
+  border: 1px solid var(--color-slate-300);
+  border-radius: 4px;
+  padding: 0.15rem 0.35rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+/* 行程警報橫幅 (Extreme Drive & Risk Banner) */
+.danger-alert-banner {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-left: 5px solid var(--color-danger);
+  border-radius: var(--radius-sm);
+  padding: 0.85rem 1.15rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+  color: #991b1b;
+  line-height: 1.5;
+}
+
+.danger-alert-banner.warning {
+  background: #fffbeb;
+  border-color: #fde68a;
+  border-left-color: var(--color-warning);
+  color: #92400e;
+}
+
+.alert-icon {
+  font-size: 1.35rem;
+  flex-shrink: 0;
+}
+
+/* 行程統計卡片 (Day Stat Bar) */
+.day-stat-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  background: var(--color-slate-50);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-slate-200);
+}
+
+@media (max-width: 640px) {
+  .day-stat-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--color-slate-500);
+  font-weight: 600;
+}
+
+.stat-val {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--color-slate-900);
+}
+
+.stat-val.highlight-danger {
+  color: var(--color-danger);
+}
+
+/* 行程景點時間軸 (Timeline Container) */
+.timeline-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+}
+
+/* 交通節點 (Transit Connector) */
+.transit-connector {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem 0.85rem 2.25rem;
+  position: relative;
+}
+
+.transit-connector::before {
+  content: "";
+  position: absolute;
+  left: 28px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: repeating-linear-gradient(to bottom, #94a3b8 0, #94a3b8 4px, transparent 4px, transparent 8px);
+}
+
+.transit-bubble {
+  background: var(--color-white);
+  border: 1px solid var(--color-slate-300);
+  border-radius: var(--radius-full);
+  padding: 0.35rem 0.85rem;
+  font-size: 0.8rem;
+  color: var(--color-slate-700);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: var(--shadow-sm);
+  z-index: 2;
+}
+
+.transit-bubble.long-drive {
+  background: var(--color-danger-light);
+  border-color: rgba(220, 38, 38, 0.3);
+  color: var(--color-danger);
+  font-weight: 700;
+}
+
+.transit-bubble.walk-drive {
+  background: var(--color-elder-light);
+  border-color: rgba(5, 150, 105, 0.3);
+  color: var(--color-elder);
+}
+
+/* 景點卡片 (Spot Item Card) */
+.spot-card {
+  background: var(--color-white);
+  border: 1px solid var(--color-slate-200);
+  border-radius: var(--radius-md);
+  padding: 1.15rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  transition: all var(--transition-fast);
+  position: relative;
+  z-index: 3;
+}
+
+.spot-card:hover {
+  border-color: var(--color-slate-400);
+  box-shadow: var(--shadow-md);
+}
+
+.spot-card.dragging {
+  opacity: 0.5;
+  border: 2px dashed var(--color-primary);
+}
+
+.spot-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.spot-main-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  flex: 1;
+}
+
+.spot-index-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #1e293b;
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.spot-name-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.spot-name-zh {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--color-slate-900);
+  line-height: 1.3;
+}
+
+.spot-name-ja {
+  font-size: 0.8rem;
+  color: var(--color-slate-500);
+}
+
+.spot-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.spot-timing-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  background: var(--color-slate-50);
+  padding: 0.5rem 0.85rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+}
+
+.timing-badge {
+  font-weight: 700;
+  color: var(--color-slate-700);
+}
+
+.duration-control-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.duration-select {
+  border: 1px solid var(--color-slate-300);
+  border-radius: 4px;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.8rem;
+  background: #fff;
+  font-weight: 600;
+}
+
+/* 景點世代評估摘要格 (Multi-Gen Box inside Spot Card) */
+.spot-gen-eval-box {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  border-top: 1px solid var(--color-slate-100);
+  padding-top: 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .spot-gen-eval-box {
+    grid-template-columns: 1fr;
+  }
+}
+
+.gen-pill-col {
+  padding: 0.6rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.775rem;
+  line-height: 1.4;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.gen-pill-col.col-elder {
+  background: var(--color-elder-light);
+  color: #064e3b;
+  border-left: 3px solid var(--color-elder);
+}
+
+.gen-pill-col.col-youth {
+  background: var(--color-youth-light);
+  color: #881337;
+  border-left: 3px solid var(--color-youth);
+}
+
+.gen-pill-col.col-infant {
+  background: var(--color-baby-light);
+  color: #78350f;
+  border-left: 3px solid var(--color-baby);
+}
+
+.gen-pill-title {
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.spot-custom-notes {
+  font-size: 0.85rem;
+  color: var(--color-slate-700);
+  background: #fffbeb;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border-left: 3px solid #f59e0b;
+}
+
+/* 空景點引導卡 */
+.empty-spots-card {
+  background: var(--color-white);
+  border: 2px dashed var(--color-slate-300);
+  border-radius: var(--radius-md);
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  color: var(--color-slate-500);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* 側邊欄 (Sidebar Panel) */
+.planner-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.sidebar-card {
+  background: var(--color-white);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-slate-200);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.sidebar-card-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--color-slate-900);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* 地圖容器 */
+#kyushu-map {
+  width: 100%;
+  height: 380px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-slate-200);
+  background: #e2e8f0;
+  z-index: 1;
+}
+
+.map-tools-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--color-slate-600);
+}
+
+/* 景點庫抽屜 / 彈窗 (Spot Picker Modal / Drawer) */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-normal);
+}
+
+.modal-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-content {
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 780px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+  transform: translateY(20px);
+  transition: transform var(--transition-normal);
+}
+
+.modal-overlay.open .modal-content {
+  transform: translateY(0);
+}
+
+.modal-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--color-slate-200);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--color-slate-900);
+}
+
+.modal-close-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--color-slate-400);
+  cursor: pointer;
+  padding: 0.25rem;
+  line-height: 1;
+}
+
+.modal-close-btn:hover {
+  color: var(--color-slate-800);
+}
+
+.modal-body {
+  padding: 1.25rem 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.modal-search-box {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.modal-search-input {
+  flex: 1;
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--color-slate-300);
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+}
+
+.modal-search-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+
+.modal-filter-chips {
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+}
+
+.filter-chip-btn {
+  border: 1px solid var(--color-slate-200);
+  background: var(--color-slate-50);
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.filter-chip-btn.active {
+  background: var(--color-primary);
+  color: #fff;
+  border-color: var(--color-primary);
+}
+
+.spot-picker-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+.picker-item-card {
+  border: 1px solid var(--color-slate-200);
+  border-radius: var(--radius-sm);
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  transition: all var(--transition-fast);
+}
+
+.picker-item-card:hover {
+  border-color: var(--color-primary);
+  background: #f8fafc;
+}
+
+.picker-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.picker-item-title {
+  font-weight: 700;
+  color: var(--color-slate-900);
+  font-size: 1rem;
+}
+
+.picker-item-desc {
+  font-size: 0.8rem;
+  color: var(--color-slate-500);
+  line-height: 1.4;
+}
+
+/* 深度評估對照表 (Report Comparison Table) */
+.comparison-section {
+  padding: 2.5rem 0;
+}
+
+.section-header-block {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--color-slate-900);
+  letter-spacing: -0.01em;
+}
+
+.section-subtitle {
+  font-size: 0.95rem;
+  color: var(--color-slate-500);
+  margin-top: 0.35rem;
+}
+
+.comparison-table-wrap {
+  background: var(--color-white);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-slate-200);
+  overflow-x: auto;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 1.5rem;
+}
+
+.comp-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.comp-table th, .comp-table td {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--color-slate-200);
+}
+
+.comp-table th {
+  background: var(--color-slate-100);
+  font-weight: 700;
+  color: var(--color-slate-700);
+}
+
+.comp-table tr.highlight-winner {
+  background: #f0fdf4;
+}
+
+.comp-table tr.highlight-loser {
+  background: #fff1f2;
+}
+
+/* 防護錦囊卡片格 (Care Arsenal Grid) */
+.care-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+.care-card {
+  background: var(--color-white);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-slate-200);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.care-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--color-slate-900);
+}
+
+/* 工具箱頁面 (Toolkit Section) */
+.toolkit-tabs-wrap {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--color-slate-200);
+  margin-bottom: 1.5rem;
+}
+
+.toolkit-tab-btn {
+  padding: 0.65rem 1.25rem;
+  border: none;
+  background: transparent;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--color-slate-500);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all var(--transition-fast);
+}
+
+.toolkit-tab-btn.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+.checklist-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: var(--color-white);
+  border: 1px solid var(--color-slate-200);
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.5rem;
+}
+
+.checklist-item-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.checklist-item-left input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+/* Toast 提示條 */
+#toast-container {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.toast-msg {
+  background: #1e293b;
+  color: #fff;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-xl);
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  animation: slideInUp 0.25s ease forwards;
+  pointer-events: auto;
+}
+
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 列印專用樣式 (@media print) */
+@media screen {
+  #print-full-itinerary,
+  .print-handbook-container,
+  .print-header-banner {
+    display: none !important;
+  }
+}
+
+@media print {
+  body {
+    background: #fff !important;
+    color: #0f172a !important;
+    font-size: 9.5pt;
+    line-height: 1.4;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .site-header,
+  .main-nav-bar,
+  .perspective-bar,
+  .preset-section,
+  .studio-toolbar,
+  .day-switcher-bar,
+  .spot-actions,
+  .modal-overlay,
+  .planner-sidebar,
+  .btn,
+  #toast-container,
+  #section-planner,
+  #section-comparison,
+  #section-care,
+  #section-toolkit,
+  footer,
+  .print-header-banner {
+    display: none !important;
+  }
+  
+  #print-full-itinerary,
+  .print-handbook-container {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  .print-day-block {
+    page-break-after: always;
+    break-after: page;
+    margin-bottom: 1.5rem;
+  }
+  
+  .print-day-block:last-child {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+  
+  .print-summary-table {
+    border: 1px solid #cbd5e1 !important;
+  }
+  
+  .print-summary-table th,
+  .print-summary-table td {
+    border: 1px solid #cbd5e1 !important;
+  }
+}
+
