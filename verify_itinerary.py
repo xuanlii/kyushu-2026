@@ -404,65 +404,153 @@ def test_flight_selector_and_sync():
 
     print("[TEST] 8. 執行 JavaScriptCore 驗證航班切換後之時間漣漪動態同步 (Day 1 +60分, Day 5 -120分)...")
     js_sync_test = """
-    load("data.js");
+    var setTimeout = function(cb) { return 1; };
+    var clearTimeout = function() {};
+    var setInterval = function(cb) { return 1; };
+    var clearInterval = function() {};
+    var console = { log: print, warn: print, error: print };
 
-    // 模擬 DOM 與 LocalStorage
+    function makeElement() {
+      return {
+        addEventListener: function() {},
+        querySelector: function() { return makeElement(); },
+        querySelectorAll: function() { return []; },
+        style: {},
+        classList: { add: function() {}, remove: function() {} },
+        setAttribute: function() {},
+        appendChild: function() {},
+        removeChild: function() {}
+      };
+    }
+    var document = {
+      documentElement: makeElement(),
+      addEventListener: function(event, cb) { this.cb = cb; },
+      getElementById: function(id) { return makeElement(); },
+      querySelectorAll: function() { return []; },
+      querySelector: function() { return makeElement(); },
+      createElement: function() { return makeElement(); },
+      body: makeElement()
+    };
+    var window = { innerWidth: 1200, addEventListener: function() {}, scrollTo: function() {}, isSecureContext: true };
     var testStorage = {};
     var localStorage = {
       getItem: function(k) { return testStorage[k] !== undefined ? testStorage[k] : null; },
-      setItem: function(k, v) { return testStorage[k] = String(v); }
+      setItem: function(k, v) { testStorage[k] = String(v); }
+    };
+    var navigator = {};
+    var L = {
+      map: function() { return { setView: function() {}, on: function() {}, invalidateSize: function() {}, fitBounds: function() {}, removeLayer: function() {}, dragging: { enable: function(){} } }; },
+      tileLayer: function() { return { addTo: function() {} }; },
+      marker: function() { return { addTo: function() { return { bindPopup: function() { return { on: function() {} }; } }; } }; },
+      polyline: function() { return { addTo: function() {} }; },
+      latLngBounds: function() { return { isValid: function() { return false; } }; },
+      divIcon: function() {},
+      featureGroup: function() { return { getBounds: function() { return { pad: function() { return {}; } }; } }; }
     };
 
-    // 驗證 1：套用華航早班 CI110 (09:55 抵達) / CI111 (10:55 起飛)
-    var planA = JSON.parse(JSON.stringify(ITINERARY_PRESETS[0]));
+    load("data.js");
+    load("app.js");
+    document.cb();
+
+    var engine = window.KYUSHU_FLIGHT_ENGINE;
+    if (!engine) throw new Error("KYUSHU_FLIGHT_ENGINE is missing!");
+
+    // 1. 測試 parseTimeToMinutes 邊界值與跨日解析
+    var p1 = engine.parseTimeToMinutes("09:55");
+    var p2 = engine.parseTimeToMinutes("(+1日) 01:45");
+    if (p1 !== 595) throw new Error("parseTimeToMinutes(09:55) failed: " + p1);
+    if (p2 !== 1545) throw new Error("parseTimeToMinutes((+1日) 01:45) failed: " + p2);
+
+    // 2. 測試華航早班 CI110 (09:55 抵達) / CI111 (10:55 起飛)
     var ciMorning = KYUSHU_FLIGHTS.find(function(f) { return f.id === 'ci-fuk-morning-roundtrip'; });
+    engine.syncFlightToItinerary(ciMorning, false);
 
-    // 模擬同步邏輯
-    var day1 = planA.days[0];
-    day1.departureTime = ciMorning.outbound.arrTime; // 09:55 抵達
-    var d1Item0 = day1.items[0];
-    d1Item0.durationMinutes = 60; // 保留 60 分鐘通關取車
+    var d1 = engine.STATE.itineraryDays[0];
+    var d1_item0 = d1.items[0];
+    var d5 = engine.STATE.itineraryDays[engine.STATE.itineraryDays.length - 1];
+    var d5_last = d5.items[d5.items.length - 1];
 
-    var day5 = planA.days[4];
-    var lastIdx = day5.items.length - 1;
-    var d5Last = day5.items[lastIdx];
-    d5Last.durationMinutes = 120; // 起飛前 120 分鐘抵達機場還車安檢
+    var ci_d1_ok = (d1.departureTime === "09:55" && d1_item0.arriveTime === "09:55" && d1_item0.departTime === "10:55" && d1_item0.spotId === "fuk-airport");
+    var ci_d5_ok = (d5_last.arriveTime === "08:55" && d5_last.departTime === "10:55" && d5_last.spotId === "fuk-airport");
+    var ci_d1_pickup_done = d1_item0.departTime;
+    var ci_d5_airport_target = d5_last.arriveTime;
 
-    // 測試 Day 1 時間：09:55 抵達 + 60分通關 = 10:55 出發前往下站
-    var d1_arrive_min = 9 * 60 + 55;
-    var d1_pickup_depart = d1_arrive_min + 60; // 10:55 (655 mins)
-    var d1_ok = (day1.departureTime === '09:55' && d1Item0.durationMinutes === 60);
-
-    // 測試 Day 5 時間：CI111 10:55 起飛，機場抵達目標為 10:55 - 120分 = 08:55 (535 mins)
-    var d5_flight_dep = 10 * 60 + 55;
-    var d5_airport_target = d5_flight_dep - 120; // 08:55 (535 mins)
-
-    // 驗證 2：套用星宇雙點進出 JX840 (福岡 18:00 抵達) / JX847 (熊本 12:15 起飛)
+    // 3. 測試星宇雙點進出 JX840 (福岡 18:00 抵達) / JX847 (熊本 12:15 起飛)
     var openJaw = KYUSHU_FLIGHTS.find(function(f) { return f.id === 'starlux-openjaw-fuk-kmj'; });
-    var oj_d1_arr = openJaw.outbound.arrTime; // 18:00
-    var oj_d5_dep = openJaw.inbound.depTime; // 12:15
-    var oj_target_kmj = (12 * 60 + 15) - 120; // 10:15 抵達熊本機場
+    engine.syncFlightToItinerary(openJaw, false);
+
+    var oj_d1 = engine.STATE.itineraryDays[0];
+    var oj_d1_item0 = oj_d1.items[0];
+    var oj_d5 = engine.STATE.itineraryDays[engine.STATE.itineraryDays.length - 1];
+    var oj_d5_last = oj_d5.items[oj_d5.items.length - 1];
+
+    var oj_d1_ok = (oj_d1.departureTime === "18:00" && oj_d1_item0.arriveTime === "18:00" && oj_d1_item0.departTime === "19:00" && oj_d1_item0.spotId === "fuk-airport");
+    var oj_d5_ok = (oj_d5_last.arriveTime === "10:15" && oj_d5_last.spotId === "kmj-airport" && Math.abs(oj_d5_last.lat - 32.8372) < 0.001);
+    var oj_d1_arr = oj_d1_item0.arriveTime;
+    var oj_d5_kmj_target = oj_d5_last.arriveTime;
+    var oj_kmj_lat = oj_d5_last.lat;
+
+    // 4. 測試華航熊本單點 CI194 (熊本 17:35 抵達) / CI195 (熊本 18:35 起飛)
+    var ciKmj = KYUSHU_FLIGHTS.find(function(f) { return f.id === 'ci-kmj-roundtrip'; });
+    engine.syncFlightToItinerary(ciKmj, false);
+
+    var kmj_d1 = engine.STATE.itineraryDays[0];
+    var kmj_d1_item0 = kmj_d1.items[0];
+    var kmj_d5 = engine.STATE.itineraryDays[engine.STATE.itineraryDays.length - 1];
+    var kmj_d5_last = kmj_d5.items[kmj_d5.items.length - 1];
+
+    var kmj_d1_ok = (kmj_d1.departureTime === "17:35" && kmj_d1_item0.arriveTime === "17:35" && kmj_d1_item0.departTime === "18:35" && kmj_d1_item0.spotId === "kmj-airport" && Math.abs(kmj_d1_item0.lat - 32.8372) < 0.001);
+    var kmj_d5_ok = (kmj_d5_last.arriveTime === "16:35" && kmj_d5_last.spotId === "kmj-airport");
+
+    // 5. 測試自訂航班輸入
+    var customFlight = {
+      id: "custom",
+      name: "長榮自訂加班機",
+      airline: "長榮航空",
+      airlineCode: "CUSTOM",
+      routeType: "fuk-roundtrip",
+      outbound: { flightNo: "BR1068", airportCode: "FUK", depTime: "10:00", arrTime: "13:30" },
+      inbound: { flightNo: "BR1067", airportCode: "FUK", depTime: "15:45", arrTime: "17:15" }
+    };
+    engine.syncFlightToItinerary(customFlight, false);
+    var cust_d1 = engine.STATE.itineraryDays[0];
+    var cust_d5 = engine.STATE.itineraryDays[engine.STATE.itineraryDays.length - 1];
+    var cust_d1_ok = (cust_d1.departureTime === "13:30" && cust_d1.items[0].departTime === "14:30");
+    var cust_d5_ok = (cust_d5.items[cust_d5.items.length - 1].arriveTime === "13:45");
 
     print(JSON.stringify({
-      ci_ok: d1_ok,
-      ci_d1_start: day1.departureTime,
-      ci_d1_pickup_done: Math.floor(d1_pickup_depart/60) + ":" + (d1_pickup_depart%60),
-      ci_d5_airport_target: Math.floor(d5_airport_target/60) + ":" + (d5_airport_target%60),
+      ci_d1_ok: ci_d1_ok,
+      ci_d5_ok: ci_d5_ok,
+      ci_d1_pickup_done: ci_d1_pickup_done,
+      ci_d5_airport_target: ci_d5_airport_target,
+      oj_d1_ok: oj_d1_ok,
+      oj_d5_ok: oj_d5_ok,
       oj_d1_arr: oj_d1_arr,
-      oj_d5_kmj_target: Math.floor(oj_target_kmj/60) + ":" + (oj_target_kmj%60)
+      oj_d5_kmj_target: oj_d5_kmj_target,
+      oj_kmj_lat: oj_kmj_lat,
+      kmj_d1_ok: kmj_d1_ok,
+      kmj_d5_ok: kmj_d5_ok,
+      cust_d1_ok: cust_d1_ok,
+      cust_d5_ok: cust_d5_ok
     }));
     """
     res = json.loads(run_js(js_sync_test))
-    assert res['ci_ok'] == True, "CI 早班 Day 1 同步驗證未通過"
-    assert res['ci_d1_start'] == "09:55", f"Day 1 出發時間不為 09:55: {res['ci_d1_start']}"
+    assert res['ci_d1_ok'] is True, "華航早班 CI110 Day 1 同步驗證未通過"
+    assert res['ci_d5_ok'] is True, "華航早班 CI111 Day 5 同步驗證未通過"
     assert res['ci_d1_pickup_done'] == "10:55", f"通關取車完成時間不為 10:55: {res['ci_d1_pickup_done']}"
-    assert res['ci_d5_airport_target'] == "8:55", f"Day 5 還車安檢抵達不為 08:55: {res['ci_d5_airport_target']}"
-    assert res['oj_d1_arr'] == "18:00", f"星宇雙點去程落地時刻不為 18:00: {res['oj_d1_arr']}"
+    assert res['ci_d5_airport_target'] == "08:55", f"Day 5 還車安檢抵達不為 08:55: {res['ci_d5_airport_target']}"
+    assert res['oj_d1_ok'] is True, "星宇雙點去程落地驗證未通過"
+    assert res['oj_d5_ok'] is True, "星宇雙點熊本還車驗證未通過 (含座標同步)"
     assert res['oj_d5_kmj_target'] == "10:15", f"星宇雙點熊本機場還車目標不為 10:15: {res['oj_d5_kmj_target']}"
+    assert res['kmj_d1_ok'] is True, "華航熊本單點 Day 1 驗證未通過"
+    assert res['kmj_d5_ok'] is True, "華航熊本單點 Day 5 驗證未通過"
+    assert res['cust_d1_ok'] is True, "自訂航班 Day 1 驗證未通過"
+    assert res['cust_d5_ok'] is True, "自訂航班 Day 5 驗證未通過"
 
     print(f"  -> 華航早班機 (CI110 09:55 抵達) 通關取車 60 分鐘於 {res['ci_d1_pickup_done']} 順利啟程！")
     print(f"  -> 華航早班回程 (CI111 10:55 起飛) 準確於起飛前 120 分鐘 ({res['ci_d5_airport_target']}) 抵達福岡機場！")
-    print(f"  -> 星宇雙點進出 (JX840 FUK ➔ JX847 KMJ) 準確於 10:15 (起飛前 120 分鐘) 抵達熊本機場安檢還車！")
+    print(f"  -> 星宇雙點進出 (JX840 FUK ➔ JX847 KMJ) 準確於 {res['oj_d5_kmj_target']} 抵達熊本機場安檢還車 (經緯度精確錨定: {res['oj_kmj_lat']})！")
+    print(f"  -> 華航熊本單點 (CI194 ➔ CI195) 與自訂航班時間漣漪動態同步 100% 驗證通過！")
 
 if __name__ == '__main__':
     print("==================================================")

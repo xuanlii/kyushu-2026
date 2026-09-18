@@ -299,8 +299,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function parseTimeToMinutes(timeStr) {
     if (!timeStr) return 9 * 60; // 預設 09:00
-    const [h, m] = String(timeStr).split(':').map(Number);
-    return (h || 0) * 60 + (m || 0);
+    const str = String(timeStr).trim();
+    const match = str.match(/(\d{1,2}):(\d{2})/);
+    if (!match) return 9 * 60;
+    const h = parseInt(match[1], 10);
+    const m = parseInt(match[2], 10);
+    const mins = h * 60 + m;
+    return str.includes('+1') ? mins + 1440 : mins;
   }
 
   function formatMinutesToTime(totalMins) {
@@ -335,8 +340,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // 查找景點完整元數據（優先內建，次之自訂）
         const spotMeta = getSpotById(item.spotId || item.id) || item.spotData || {};
         item.spotData = spotMeta;
-        item.lat = typeof item.lat === 'number' ? item.lat : spotMeta.lat;
-        item.lng = typeof item.lng === 'number' ? item.lng : spotMeta.lng;
+        if (spotMeta && typeof spotMeta.lat === 'number') {
+          item.lat = spotMeta.lat;
+          item.lng = spotMeta.lng;
+        } else {
+          item.lat = typeof item.lat === 'number' ? item.lat : spotMeta.lat;
+          item.lng = typeof item.lng === 'number' ? item.lng : spotMeta.lng;
+        }
         item.nameZh = item.nameZh || spotMeta.nameZh || '自訂地點';
         item.durationMinutes = item.durationMinutes !== undefined ? item.durationMinutes : (spotMeta.defaultStayMins || 60);
 
@@ -497,6 +507,9 @@ document.addEventListener('DOMContentLoaded', () => {
   function syncFlightToItinerary(flight, showToastMsg = true) {
     if (!flight || !STATE.itineraryDays || STATE.itineraryDays.length === 0) return;
 
+    STATE.selectedFlightId = flight.id;
+    safeStorageSet('kyushu_selected_flight', flight.id);
+
     const days = STATE.itineraryDays;
     const day1 = days[0];
     const day5 = days[days.length - 1];
@@ -513,20 +526,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (isAirportItem) {
         firstItem.durationMinutes = 60; // 落地後保留約 60 分鐘通關取車
-        if (flight.outbound.airportCode === 'KMJ' || (flight.routeType && flight.routeType.includes('kmj-roundtrip')) || flight.routeType === 'openjaw-kmj-fuk') {
-          firstItem.spotId = 'kmj-airport';
-          firstItem.id = 'kmj-airport';
-          firstItem.nameZh = '熊本機場 (KMJ) 抵達取車';
-        } else {
-          firstItem.spotId = 'fuk-airport';
-          firstItem.id = 'fuk-airport';
-          firstItem.nameZh = '福岡機場 (FUK) 抵達取車';
+        const isKmj = flight.outbound.airportCode === 'KMJ' || (flight.routeType && flight.routeType.includes('kmj-roundtrip')) || flight.routeType === 'openjaw-kmj-fuk';
+        const newSpotId = isKmj ? 'kmj-airport' : 'fuk-airport';
+        firstItem.spotId = newSpotId;
+        firstItem.id = newSpotId;
+        firstItem.nameZh = isKmj ? '熊本機場 (KMJ) 抵達取車' : '福岡機場 (FUK) 抵達取車';
+
+        const airportSpot = getSpotById(newSpotId);
+        if (airportSpot) {
+          firstItem.lat = airportSpot.lat;
+          firstItem.lng = airportSpot.lng;
+          firstItem.spotData = airportSpot;
         }
+
         firstItem.customNotes = `搭乘 ${flight.airline} ${flight.outbound.flightNo} (${flight.outbound.depTime} ➔ ${flight.outbound.arrTime}) 抵達。落地後預留 60 分鐘辦理入境通關、提領行李與租車取車手續。`;
       }
     }
 
     // 2. 同步 Day 5 (機場報到還車，起飛前約 120 分鐘抵達機場還車安檢)
+    let isEarlyDay5Departure = false;
     if (day5 && day5.items && day5.items.length > 0 && flight.inbound) {
       const depTime = flight.inbound.depTime || '19:10';
       const flightDepMins = parseTimeToMinutes(depTime);
@@ -540,15 +558,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (isAirportItem) {
         lastItem.durationMinutes = 120; // 機場停留 120 分鐘直至起飛
+        const isKmj = flight.inbound.airportCode === 'KMJ' || (flight.routeType && flight.routeType.includes('kmj-roundtrip')) || flight.routeType === 'openjaw-fuk-kmj';
+        const newSpotId = isKmj ? 'kmj-airport' : 'fuk-airport';
+        lastItem.spotId = newSpotId;
+        lastItem.id = newSpotId;
+        lastItem.nameZh = isKmj ? `熊本機場 (KMJ) ➔ 桃園 (${flight.inbound.flightNo} ${flight.inbound.depTime}-${flight.inbound.arrTime})`
+                                : `福岡機場 (FUK) ➔ 桃園 (${flight.inbound.flightNo} ${flight.inbound.depTime}-${flight.inbound.arrTime})`;
 
-        if (flight.inbound.airportCode === 'KMJ' || (flight.routeType && flight.routeType.includes('kmj-roundtrip')) || flight.routeType === 'openjaw-fuk-kmj') {
-          lastItem.spotId = 'kmj-airport';
-          lastItem.id = 'kmj-airport';
-          lastItem.nameZh = `熊本機場 (KMJ) ➔ 桃園 (${flight.inbound.flightNo} ${flight.inbound.depTime}-${flight.inbound.arrTime})`;
-        } else {
-          lastItem.spotId = 'fuk-airport';
-          lastItem.id = 'fuk-airport';
-          lastItem.nameZh = `福岡機場 (FUK) ➔ 桃園 (${flight.inbound.flightNo} ${flight.inbound.depTime}-${flight.inbound.arrTime})`;
+        const airportSpot = getSpotById(newSpotId);
+        if (airportSpot) {
+          lastItem.lat = airportSpot.lat;
+          lastItem.lng = airportSpot.lng;
+          lastItem.spotData = airportSpot;
         }
 
         lastItem.customNotes = `搭乘 ${flight.airline} ${flight.inbound.flightNo} (${flight.inbound.depTime} ➔ ${flight.inbound.arrTime}) 返台。起飛前 120 分鐘抵達機場辦理還車、退稅提領與安檢託運。`;
@@ -567,6 +588,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let computedDay5Start = targetAirportArriveMins - elapsedBeforeAirport;
         while (computedDay5Start < 0) computedDay5Start += 24 * 60;
         computedDay5Start = computedDay5Start % (24 * 60);
+        if (computedDay5Start < 390) isEarlyDay5Departure = true; // 06:30 前出發
 
         const h = Math.floor(computedDay5Start / 60);
         const m = computedDay5Start % 60;
@@ -582,9 +604,14 @@ document.addEventListener('DOMContentLoaded', () => {
     updateFlightUI(flight);
     if (typeof renderDayTabs === 'function') renderDayTabs();
     if (typeof renderDayTimeline === 'function') renderDayTimeline();
+    if (typeof updateMap === 'function') updateMap();
 
     if (showToastMsg) {
-      showToast(`✈️ 已成功切換為【${flight.name}】！Day 1 抵達與 Day 5 機場還車時間已智慧同步連鎖推算。`, '✈️');
+      if (isEarlyDay5Departure) {
+        showToast(`✈️ 已切換為【${flight.name}】！⚠️ 回程為早班機，Day 5 出發較早，建議適度精簡當日景點停留。`, '⚠️');
+      } else {
+        showToast(`✈️ 已成功切換為【${flight.name}】！Day 1 抵達與 Day 5 機場還車時間已智慧同步連鎖推算。`, '✈️');
+      }
     }
   }
 
@@ -678,15 +705,25 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
     }).join('');
 
-    // 綁定選擇此航班按鈕
+    // 綁定卡片整張點擊與按鈕選擇 (支援行動端單手直接輕觸切換)
+    container.querySelectorAll('.flight-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const fId = card.dataset.flightId;
+        const targetFlight = (STATE.customFlightData && STATE.customFlightData.id === fId) ? STATE.customFlightData : flights.find(f => f.id === fId);
+        if (targetFlight) {
+          syncFlightToItinerary(targetFlight, true);
+          renderFlightCards(STATE.flightFilter);
+          closeFlightModal();
+        }
+      });
+    });
+
     container.querySelectorAll('.btn-apply-flight').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         const fId = btn.dataset.flightId;
-        const targetFlight = flights.find(f => f.id === fId);
+        const targetFlight = (STATE.customFlightData && STATE.customFlightData.id === fId) ? STATE.customFlightData : flights.find(f => f.id === fId);
         if (targetFlight) {
-          STATE.selectedFlightId = targetFlight.id;
-          safeStorageSet('kyushu_selected_flight', targetFlight.id);
           syncFlightToItinerary(targetFlight, true);
           renderFlightCards(STATE.flightFilter);
           closeFlightModal();
@@ -833,8 +870,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 暴露全域引擎供自動化測試
     window.KYUSHU_FLIGHT_ENGINE = {
+      STATE,
       getSelectedFlight,
       syncFlightToItinerary,
+      recalculateItineraryTimeline,
+      getSpotById,
+      calculateTransit,
+      parseTimeToMinutes,
+      formatMinutesToTime,
       KYUSHU_FLIGHTS: (typeof KYUSHU_FLIGHTS !== 'undefined') ? KYUSHU_FLIGHTS : window.KYUSHU_FLIGHTS
     };
 

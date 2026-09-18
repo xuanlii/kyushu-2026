@@ -2174,7 +2174,18 @@ const KYUSHU_CORRIDORS = {
   "beppu-ropeway:mojiko-retro": { distKm: 98, mins: 78, highway: "東九州自動車道北上", roadType: "highway" },
   "yufuin-kinrin-lake:mojiko-retro": { distKm: 115, mins: 85, highway: "大分自動車道接東九州/九州道", roadType: "highway" },
   "fukuoka-hotel-hakata:lalaport-fukuoka": { distKm: 7, mins: 18, highway: "竹下通/筑紫通", roadType: "urban" },
-  "kumamoto-hotel-city:aso-kusasenri": { distKm: 50, mins: 75, highway: "國道57號接阿蘇登山道", roadType: "mountain" }
+  "kumamoto-hotel-city:aso-kusasenri": { distKm: 50, mins: 75, highway: "國道57號接阿蘇登山道", roadType: "mountain" },
+  "kmj-airport:miyawaka-hotel": { distKm: 145, mins: 120, highway: "九州自動車道直達", roadType: "highway" },
+  "hakata-station:kmj-airport": { distKm: 115, mins: 95, highway: "九州自動車道南下", roadType: "highway" },
+  "dazaifu-tenmangu:kmj-airport": { distKm: 98, mins: 80, highway: "九州自動車道南下", roadType: "highway" },
+  "lalaport-fukuoka:kmj-airport": { distKm: 112, mins: 90, highway: "九州自動車道南下", roadType: "highway" },
+  "kmj-airport:fukuoka-hotel-hakata": { distKm: 116, mins: 95, highway: "九州自動車道北上", roadType: "highway" },
+  "fuk-airport:kumamoto-castle": { distKm: 115, mins: 95, highway: "九州自動車道直達", roadType: "highway" },
+  "fuk-airport:kumamon-square": { distKm: 114, mins: 95, highway: "九州自動車道直達", roadType: "highway" },
+  "fuk-airport:kumamoto-hotel-city": { distKm: 115, mins: 95, highway: "九州自動車道直達", roadType: "highway" },
+  "fuk-airport:suizenji-garden": { distKm: 116, mins: 95, highway: "九州自動車道直達", roadType: "highway" },
+  "suizenji-garden:fuk-airport": { distKm: 116, mins: 95, highway: "九州自動車道北上", roadType: "highway" },
+  "minamiaso-onsen-hotel:fuk-airport": { distKm: 135, mins: 115, highway: "俵山隧道接九州道", roadType: "highway" }
 };
 
 const PRESET_ITINERARIES = ITINERARY_PRESETS;
@@ -2185,6 +2196,8 @@ if (typeof window !== 'undefined') {
   window.ITINERARY_PRESETS = ITINERARY_PRESETS;
   window.PRESET_ITINERARIES = PRESET_ITINERARIES;
   window.KYUSHU_CORRIDORS = KYUSHU_CORRIDORS;
+  window.KYUSHU_FLIGHTS = KYUSHU_FLIGHTS;
+  window.DEFAULT_KYUSHU_FLIGHT_ID = DEFAULT_KYUSHU_FLIGHT_ID;
 }
 
 if (typeof module !== 'undefined' && module.exports) {
@@ -2193,6 +2206,9 @@ if (typeof module !== 'undefined' && module.exports) {
     KYUSHU_SPOTS,
     ITINERARY_PRESETS,
     PRESET_ITINERARIES,
-    KYUSHU_CORRIDORS
+    KYUSHU_CORRIDORS,
+    KYUSHU_FLIGHTS,
+    DEFAULT_KYUSHU_FLIGHT_ID
   };
 }
+
