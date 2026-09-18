@@ -12,6 +12,418 @@
  * 10 個月大嬰兒（母嬰室、70°C 熱水、推車動線、背巾替換、車程耐受度）
  */
 
+/**
+ * 2026 九州航線航班資訊庫 (STARLUX 星宇, CHINA AIRLINES 華航, EVA AIR 長榮)
+ * 涵蓋福岡（FUK）、熊本（KMJ）與雙點進出（Open-Jaw）組合
+ */
+const KYUSHU_FLIGHTS = [
+  // ==================== 星宇航空 STARLUX (JX) ====================
+  {
+    id: "starlux-fuk-roundtrip",
+    airline: "星宇航空",
+    airlineEn: "STARLUX Airlines",
+    airlineCode: "JX",
+    airlineColor: "#c5a059",
+    airlineLogo: "⭐",
+    name: "星宇航空 · 福岡單點往返 (原DM指定)",
+    routeType: "fuk-roundtrip",
+    routeTypeName: "福岡單點進出",
+    badge: "原 DM 指定班機",
+    badgeClass: "badge-primary",
+    tag: "經典時段",
+    outbound: {
+      flightNo: "JX840",
+      airline: "星宇航空",
+      from: "TPE 桃園 (T1)",
+      to: "FUK 福岡 (國際線)",
+      airportCode: "FUK",
+      depTime: "14:45",
+      arrTime: "18:00",
+      duration: "2小時15分"
+    },
+    inbound: {
+      flightNo: "JX841",
+      airline: "星宇航空",
+      from: "FUK 福岡 (國際線)",
+      to: "TPE 桃園 (T1)",
+      airportCode: "FUK",
+      depTime: "19:10",
+      arrTime: "20:50",
+      duration: "2小時40分"
+    },
+    recommendedPresets: ["preset-plan-a"],
+    notes: "午後從容出發，傍晚18:00抵達福岡直接專車至飯店享用晚餐與名湯；Day 5 晚間19:10起飛，買滿免稅品從容登機。"
+  },
+  {
+    id: "starlux-kmj-roundtrip",
+    airline: "星宇航空",
+    airlineEn: "STARLUX Airlines",
+    airlineCode: "JX",
+    airlineColor: "#c5a059",
+    airlineLogo: "⭐",
+    name: "星宇航空 · 熊本單點往返 (中九州核心直達)",
+    routeType: "kmj-roundtrip",
+    routeTypeName: "熊本單點進出",
+    badge: "中九州早出好時段",
+    badgeClass: "badge-info",
+    tag: "暢遊中九州",
+    outbound: {
+      flightNo: "JX846",
+      airline: "星宇航空",
+      from: "TPE 桃園 (T1)",
+      to: "KMJ 熊本 (國際線)",
+      airportCode: "KMJ",
+      depTime: "07:45",
+      arrTime: "11:00",
+      duration: "2小時15分"
+    },
+    inbound: {
+      flightNo: "JX847",
+      airline: "星宇航空",
+      from: "KMJ 熊本 (國際線)",
+      to: "TPE 桃園 (T1)",
+      airportCode: "KMJ",
+      depTime: "12:15",
+      arrTime: "13:45",
+      duration: "2小時30分"
+    },
+    recommendedPresets: ["preset-plan-c"],
+    notes: "早去午回，上午11:00抵達熊本即可開車直奔阿蘇或熊本城，適合深度走訪中九州與黑川秘境溫泉。"
+  },
+  {
+    id: "starlux-openjaw-fuk-kmj",
+    airline: "星宇航空",
+    airlineEn: "STARLUX Airlines",
+    airlineCode: "JX",
+    airlineColor: "#c5a059",
+    airlineLogo: "⭐",
+    name: "星宇航空 · 福岡進 / 熊本出 (雙點不走回頭路)",
+    routeType: "openjaw-fuk-kmj",
+    routeTypeName: "雙點進出 (福岡進/熊本出)",
+    badge: "極致推薦 雙點進出",
+    badgeClass: "badge-success",
+    tag: "雙點進出首選",
+    outbound: {
+      flightNo: "JX840",
+      airline: "星宇航空",
+      from: "TPE 桃園 (T1)",
+      to: "FUK 福岡 (國際線)",
+      airportCode: "FUK",
+      depTime: "14:45",
+      arrTime: "18:00",
+      duration: "2小時15分"
+    },
+    inbound: {
+      flightNo: "JX847",
+      airline: "星宇航空",
+      from: "KMJ 熊本 (國際線)",
+      to: "TPE 桃園 (T1)",
+      airportCode: "KMJ",
+      depTime: "12:15",
+      arrTime: "13:45",
+      duration: "2小時30分"
+    },
+    recommendedPresets: ["preset-plan-b", "preset-elder-5days"],
+    notes: "福岡進、熊本出。一路南下不走回頭路，徹底消滅 Day 2 漫長拉車，長輩與嬰兒極樂首選！"
+  },
+  {
+    id: "starlux-openjaw-kmj-fuk",
+    airline: "星宇航空",
+    airlineEn: "STARLUX Airlines",
+    airlineCode: "JX",
+    airlineColor: "#c5a059",
+    airlineLogo: "⭐",
+    name: "星宇航空 · 熊本進 / 福岡出 (早去晚回玩滿全日)",
+    routeType: "openjaw-kmj-fuk",
+    routeTypeName: "雙點進出 (熊本進/福岡出)",
+    badge: "時間效益極大化",
+    badgeClass: "badge-warning",
+    tag: "雙點滿時數",
+    outbound: {
+      flightNo: "JX846",
+      airline: "星宇航空",
+      from: "TPE 桃園 (T1)",
+      to: "KMJ 熊本 (國際線)",
+      airportCode: "KMJ",
+      depTime: "07:45",
+      arrTime: "11:00",
+      duration: "2小時15分"
+    },
+    inbound: {
+      flightNo: "JX841",
+      airline: "星宇航空",
+      from: "FUK 福岡 (國際線)",
+      to: "TPE 桃園 (T1)",
+      airportCode: "FUK",
+      depTime: "19:10",
+      arrTime: "20:50",
+      duration: "2小時40分"
+    },
+    recommendedPresets: ["preset-youth-5days"],
+    notes: "首日11:00早抵達熊本、最後一日晚間19:10才自福岡返航，玩滿足足5整天，極致利用假期。"
+  },
+
+  // ==================== 中華航空 CHINA AIRLINES (CI) ====================
+  {
+    id: "ci-fuk-morning-roundtrip",
+    airline: "中華航空",
+    airlineEn: "China Airlines",
+    airlineCode: "CI",
+    airlineColor: "#a31d24",
+    airlineLogo: "🌸",
+    name: "中華航空 · 福岡早班往返 (長輩早鳥首選)",
+    routeType: "fuk-roundtrip",
+    routeTypeName: "福岡單點進出",
+    badge: "早班抵達玩滿首日",
+    badgeClass: "badge-info",
+    tag: "長輩早班機",
+    outbound: {
+      flightNo: "CI110",
+      airline: "中華航空",
+      from: "TPE 桃園 (T2)",
+      to: "FUK 福岡 (國際線)",
+      airportCode: "FUK",
+      depTime: "06:50",
+      arrTime: "09:55",
+      duration: "2小時05分"
+    },
+    inbound: {
+      flightNo: "CI111",
+      airline: "中華航空",
+      from: "FUK 福岡 (國際線)",
+      to: "TPE 桃園 (T2)",
+      airportCode: "FUK",
+      depTime: "10:55",
+      arrTime: "12:30",
+      duration: "2小時35分"
+    },
+    recommendedPresets: ["preset-plan-a", "preset-elder-5days"],
+    notes: "清晨06:50起飛，09:55即抵達福岡！首日擁有完整的下午漫遊太宰府與市區商圈。"
+  },
+  {
+    id: "ci-fuk-evening-roundtrip",
+    airline: "中華航空",
+    airlineEn: "China Airlines",
+    airlineCode: "CI",
+    airlineColor: "#a31d24",
+    airlineLogo: "🌸",
+    name: "中華航空 · 福岡午晚班往返 (免早起晚歸版)",
+    routeType: "fuk-roundtrip",
+    routeTypeName: "福岡單點進出",
+    badge: "午後出發晚回",
+    badgeClass: "badge-secondary",
+    tag: "免起大早",
+    outbound: {
+      flightNo: "CI116",
+      airline: "中華航空",
+      from: "TPE 桃園 (T2)",
+      to: "FUK 福岡 (國際線)",
+      airportCode: "FUK",
+      depTime: "16:30",
+      arrTime: "19:35",
+      duration: "2小時05分"
+    },
+    inbound: {
+      flightNo: "CI117",
+      airline: "中華航空",
+      from: "FUK 福岡 (國際線)",
+      to: "TPE 桃園 (T2)",
+      airportCode: "FUK",
+      depTime: "20:35",
+      arrTime: "22:20",
+      duration: "2小時45分"
+    },
+    recommendedPresets: ["preset-plan-a"],
+    notes: "午後16:30出發，免去早起趕路辛苦；Day 5 晚間20:35起飛，最後一天逛街血拼至晚間18:00。"
+  },
+  {
+    id: "ci-kmj-roundtrip",
+    airline: "中華航空",
+    airlineEn: "China Airlines",
+    airlineCode: "CI",
+    airlineColor: "#a31d24",
+    airlineLogo: "🌸",
+    name: "中華航空 · 熊本單點往返 (中九州自駕)",
+    routeType: "kmj-roundtrip",
+    routeTypeName: "熊本單點進出",
+    badge: "直飛熊本中心",
+    badgeClass: "badge-primary",
+    tag: "中九州自駕",
+    outbound: {
+      flightNo: "CI194",
+      airline: "中華航空",
+      from: "TPE 桃園 (T2)",
+      to: "KMJ 熊本 (國際線)",
+      airportCode: "KMJ",
+      depTime: "14:25",
+      arrTime: "17:35",
+      duration: "2小時10分"
+    },
+    inbound: {
+      flightNo: "CI195",
+      airline: "中華航空",
+      from: "KMJ 熊本 (國際線)",
+      to: "TPE 桃園 (T2)",
+      airportCode: "KMJ",
+      depTime: "18:35",
+      arrTime: "20:20",
+      duration: "2小時45分"
+    },
+    recommendedPresets: ["preset-plan-c"],
+    notes: "直飛熊本，Day 1 傍晚抵達熊本城下町夜宿，Day 5 晚間18:35返航，下午遊覽水前寺成趣園好悠閒。"
+  },
+  {
+    id: "ci-openjaw-fuk-kmj",
+    airline: "中華航空",
+    airlineEn: "China Airlines",
+    airlineCode: "CI",
+    airlineColor: "#a31d24",
+    airlineLogo: "🌸",
+    name: "中華航空 · 福岡進(早) / 熊本出(晚) (黃金雙點高效率)",
+    routeType: "openjaw-fuk-kmj",
+    routeTypeName: "雙點進出 (福岡進/熊本出)",
+    badge: "時間效益最大化",
+    badgeClass: "badge-success",
+    tag: "雙點進出首選",
+    outbound: {
+      flightNo: "CI110",
+      airline: "中華航空",
+      from: "TPE 桃園 (T2)",
+      to: "FUK 福岡 (國際線)",
+      airportCode: "FUK",
+      depTime: "06:50",
+      arrTime: "09:55",
+      duration: "2小時05分"
+    },
+    inbound: {
+      flightNo: "CI195",
+      airline: "中華航空",
+      from: "KMJ 熊本 (國際線)",
+      to: "TPE 桃園 (T2)",
+      airportCode: "KMJ",
+      depTime: "18:35",
+      arrTime: "20:20",
+      duration: "2小時45分"
+    },
+    recommendedPresets: ["preset-plan-b", "preset-youth-5days"],
+    notes: "福岡早班機抵達 (09:55) + 熊本晚班機返台 (18:35)！玩足整整 5 天，完全不走回頭路、零時間浪費！"
+  },
+  {
+    id: "ci-openjaw-kmj-fuk",
+    airline: "中華航空",
+    airlineEn: "China Airlines",
+    airlineCode: "CI",
+    airlineColor: "#a31d24",
+    airlineLogo: "🌸",
+    name: "中華航空 · 熊本進(午) / 福岡出(晚) (南進北出悠閒版)",
+    routeType: "openjaw-kmj-fuk",
+    routeTypeName: "雙點進出 (熊本進/福岡出)",
+    badge: "南進北出悠閒版",
+    badgeClass: "badge-secondary",
+    tag: "雙點不走回頭路",
+    outbound: {
+      flightNo: "CI194",
+      airline: "中華航空",
+      from: "TPE 桃園 (T2)",
+      to: "KMJ 熊本 (國際線)",
+      airportCode: "KMJ",
+      depTime: "14:25",
+      arrTime: "17:35",
+      duration: "2小時10分"
+    },
+    inbound: {
+      flightNo: "CI117",
+      airline: "中華航空",
+      from: "FUK 福岡 (國際線)",
+      to: "TPE 桃園 (T2)",
+      airportCode: "FUK",
+      depTime: "20:35",
+      arrTime: "22:20",
+      duration: "2小時45分"
+    },
+    recommendedPresets: ["preset-plan-b"],
+    notes: "熊本進、福岡出。先遊覽熊本城與阿蘇，向北至湯布院與福岡，最後一天在福岡博多購物直到晚間八點。"
+  },
+
+  // ==================== 長榮航空 EVA AIR (BR) ====================
+  {
+    id: "eva-fuk-morning-roundtrip",
+    airline: "長榮航空",
+    airlineEn: "EVA Air",
+    airlineCode: "BR",
+    airlineColor: "#007a3d",
+    airlineLogo: "🌲",
+    name: "長榮航空 · 福岡早班往返 (星空聯盟早午配)",
+    routeType: "fuk-roundtrip",
+    routeTypeName: "福岡單點進出",
+    badge: "星空聯盟早班機",
+    badgeClass: "badge-info",
+    tag: "長輩舒適首選",
+    hasKmjAlert: false,
+    outbound: {
+      flightNo: "BR106",
+      airline: "長榮航空",
+      from: "TPE 桃園 (T2)",
+      to: "FUK 福岡 (國際線)",
+      airportCode: "FUK",
+      depTime: "08:10",
+      arrTime: "11:20",
+      duration: "2小時10分"
+    },
+    inbound: {
+      flightNo: "BR105",
+      airline: "長榮航空",
+      from: "FUK 福岡 (國際線)",
+      to: "TPE 桃園 (T2)",
+      airportCode: "FUK",
+      depTime: "12:20",
+      arrTime: "13:50",
+      duration: "2小時30分"
+    },
+    recommendedPresets: ["preset-plan-a"],
+    notes: "上午08:10出發時間最適中，長輩不必摸黑起大早，上午11:20抵達福岡直接啟動旅程。（註：長榮無熊本航線）"
+  },
+  {
+    id: "eva-fuk-afternoon-roundtrip",
+    airline: "長榮航空",
+    airlineEn: "EVA Air",
+    airlineCode: "BR",
+    airlineColor: "#007a3d",
+    airlineLogo: "🌲",
+    name: "長榮航空 · 福岡午晚班往返 (晚班回程玩好玩滿)",
+    routeType: "fuk-roundtrip",
+    routeTypeName: "福岡單點進出",
+    badge: "午去晚回熱門組合",
+    badgeClass: "badge-primary",
+    tag: "晚班回程",
+    hasKmjAlert: false,
+    outbound: {
+      flightNo: "BR102",
+      airline: "長榮航空",
+      from: "TPE 桃園 (T2)",
+      to: "FUK 福岡 (國際線)",
+      airportCode: "FUK",
+      depTime: "15:10",
+      arrTime: "18:20",
+      duration: "2小時10分"
+    },
+    inbound: {
+      flightNo: "BR101",
+      airline: "長榮航空",
+      from: "FUK 福岡 (國際線)",
+      to: "TPE 桃園 (T2)",
+      airportCode: "FUK",
+      depTime: "19:20",
+      arrTime: "20:50",
+      duration: "2小時30分"
+    },
+    recommendedPresets: ["preset-plan-a", "preset-youth-5days"],
+    notes: "下午15:10出發免早起，Day 5 晚間19:20起飛，福岡市區與太宰府有完整整天行程可逛。（註：長榮無熊本航線）"
+  }
+];
+
+const DEFAULT_KYUSHU_FLIGHT_ID = "starlux-fuk-roundtrip";
+
 const KYUSHU_METADATA = {
   id: "kyushu-2026-trip",
   title: "2026 九州跨世代自由行規劃工作室 & 深度行車評估",

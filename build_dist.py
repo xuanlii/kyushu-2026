@@ -40,3 +40,15 @@ with open(portable_path, 'w', encoding='utf-8') as f:
     f.write(html)
 
 print(f"Built portable single-file HTML: {portable_path} ({len(html):,} bytes)")
+
+# Update zip file
+import zipfile
+zip_path = os.path.join(base_dir, 'kyushu-trip-2026.zip')
+with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
+    for filename in ['index.html', 'styles.css', 'data.js', 'app.js', 'README.md', 'server.py']:
+        fpath = os.path.join(base_dir, filename)
+        if os.path.exists(fpath):
+            zf.write(fpath, arcname=filename)
+    zf.write(portable_path, arcname='dist/kyushu-trip-2026-portable.html')
+
+print(f"Built zip archive: {zip_path} ({os.path.getsize(zip_path):,} bytes)")

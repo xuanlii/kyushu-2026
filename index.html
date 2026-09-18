@@ -38,6 +38,7 @@
         </div>
 
         <div class="header-quick-actions">
+          <button class="btn btn-outline btn-sm btn-flight-picker-trigger" id="btn-flight-selector" title="選擇搭乘之航班（星宇/華航/長榮）">✈️ 航班選擇器</button>
           <button class="btn btn-outline btn-sm" id="btn-copy-itinerary" title="複製排版文字至 LINE / Notion">📋 複製行程文字</button>
           <button class="btn btn-outline btn-sm" id="btn-print-itinerary" title="列印或另存為 PDF 手冊">🖨️ 列印手冊</button>
           <button class="btn btn-outline btn-sm" id="btn-export-json" title="匯出 JSON 備份檔">📤 匯出備份</button>
@@ -46,6 +47,7 @@
       </div>
 
       <div class="header-meta-chips">
+        <div class="meta-chip flight-meta-chip" id="header-selected-flight-chip" style="cursor:pointer;" title="點擊切換航班與同步時間"><span>✈️</span> <strong>當前航班：</strong> <span id="header-selected-flight-text">星宇航空 (JX840/JX841)</span> <span class="badge badge-sm badge-info" style="margin-left:4px;">切換</span></div>
         <div class="meta-chip"><span>📅</span> <strong>旅行日期：</strong> 2026/02/24～02/28 (228 連假)</div>
         <div class="meta-chip"><span>🧓</span> <strong>熟齡長輩 (40~60歲)：</strong> 步數監控・平緩動線・溫泉名湯・熱湯御膳</div>
         <div class="meta-chip"><span>📸</span> <strong>年輕潮流 (25~35歲)：</strong> IG美拍絕景・排隊話題美食・實物大鋼彈・特色列車</div>
@@ -101,6 +103,10 @@
       <div class="studio-title-group">
         <span style="font-size:1.5rem;">🛠️</span>
         <h2 class="studio-main-title">客製行程排程編輯台</h2>
+        <div class="flight-pill-indicator" id="planner-flight-pill" title="點擊切換航班與連動時間">
+          <span>✈️ 航班連動：</span><strong id="planner-flight-text">星宇航空 JX840/JX841</strong>
+          <button type="button" class="btn btn-xs btn-outline" id="btn-planner-change-flight" style="margin-left:0.5rem; padding:2px 8px; font-size:0.75rem;">切換</button>
+        </div>
       </div>
       <div class="studio-actions-group">
         <span style="font-size:0.85rem; color:var(--color-slate-500);">💡 支援自由拖曳調序、自訂地點、停留時長調節與自動推算全日時間表</span>
@@ -299,6 +305,128 @@
       </div>
     </div>
   </footer>
+
+  <!-- ✈️ 航班選擇器彈窗 (Modal & Mobile Bottom Sheet) -->
+  <div class="modal-overlay" id="flight-modal-overlay" style="display:none;" aria-hidden="true">
+    <div class="modal-sheet flight-modal-sheet" id="flight-modal-sheet" role="dialog" aria-labelledby="flight-modal-title">
+      <div class="modal-sheet-header">
+        <div class="modal-sheet-title-wrap">
+          <div class="modal-handle-bar" aria-hidden="true"></div>
+          <h3 id="flight-modal-title" class="modal-sheet-title">✈️ 航班選擇器 (Flight Selector)</h3>
+          <p class="modal-sheet-desc">選擇「星宇」、「華航」或「長榮」航班，系統將自動同步 Day 1 入境取車 (+60分) 與 Day 5 機場報到 (-120分) 之時間漣漪。</p>
+        </div>
+        <button type="button" class="modal-close-btn" id="btn-close-flight-modal" aria-label="關閉航班選擇器">✕</button>
+      </div>
+
+      <!-- 航司與路線分類篩選籤 -->
+      <div class="flight-filter-tabs" id="flight-filter-tabs">
+        <button type="button" class="flight-filter-btn active" data-filter="all">全部航班</button>
+        <button type="button" class="flight-filter-btn" data-filter="JX">⭐ 星宇航空 (STARLUX)</button>
+        <button type="button" class="flight-filter-btn" data-filter="CI">🌸 中華航空 (China Airlines)</button>
+        <button type="button" class="flight-filter-btn" data-filter="BR">🌲 長榮航空 (EVA Air)</button>
+        <button type="button" class="flight-filter-btn" data-filter="openjaw">🔀 雙點進出 (福岡/熊本)</button>
+        <button type="button" class="flight-filter-btn" data-filter="custom" id="btn-open-custom-flight-form">✍️ 自訂航班</button>
+      </div>
+
+      <div class="modal-sheet-body">
+        <!-- 長榮熊本提示警示條 -->
+        <div class="flight-alert-notice" id="flight-eva-alert" style="display:none;">
+          <span class="flight-alert-icon">💡</span>
+          <div class="flight-alert-content">
+            <strong>長榮航空無熊本航線說明：</strong>
+            長榮航空目前僅營運台北 ⇄ 福岡（FUK）航線（BR106/105, BR102/101），無熊本（KMJ）航線。若欲規劃熊本進出或雙點進出（Open-Jaw），建議優先選擇星宇航空或中華航空！
+          </div>
+        </div>
+
+        <!-- 預設航班卡片列表容器 -->
+        <div class="flight-cards-container" id="flight-cards-container">
+          <!-- 由 app.js 動態渲染 -->
+        </div>
+
+        <!-- 使用者自訂航班輸入表單 -->
+        <div class="custom-flight-form-card" id="custom-flight-form-card" style="display:none;">
+          <h4 style="margin-top:0; margin-bottom:0.75rem; color:var(--color-slate-800); font-size:1.05rem; display:flex; align-items:center; gap:0.5rem;">
+            <span>✍️</span> 自訂手動航班與起降時刻
+          </h4>
+          <p style="font-size:0.85rem; color:var(--color-slate-600); margin-bottom:1rem; line-height:1.5;">
+            若您搭乘其他航空公司或特定班次，可在此自訂去回程航班代碼與起降時刻。系統將智慧連鎖更新 Day 1 入境取車與 Day 5 機場報到時間。
+          </p>
+          <div class="custom-flight-grid">
+            <div class="form-group-wrap">
+              <label for="custom-flight-airline">航空公司名稱 / 備註</label>
+              <input type="text" id="custom-flight-airline" class="form-control" placeholder="例如：星宇航空 / 國泰航空" value="自訂航班">
+            </div>
+            <div class="form-group-wrap">
+              <label for="custom-flight-route-type">路線進出型態</label>
+              <select id="custom-flight-route-type" class="form-control">
+                <option value="fuk-roundtrip">福岡單點往返 (FUK ⇄ TPE)</option>
+                <option value="kmj-roundtrip">熊本單點往返 (KMJ ⇄ TPE)</option>
+                <option value="openjaw-fuk-kmj">雙點進出：福岡進 / 熊本出</option>
+                <option value="openjaw-kmj-fuk">雙點進出：熊本進 / 福岡出</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="margin-top:1rem; padding-top:0.75rem; border-top:1px dashed var(--color-slate-200);">
+            <strong style="font-size:0.9rem; color:#2563eb; display:block; margin-bottom:0.5rem;">🛫 去程班機 (Day 1 抵達九州)</strong>
+            <div class="custom-flight-grid">
+              <div class="form-group-wrap">
+                <label for="custom-flight-outbound-no">去程航班號</label>
+                <input type="text" id="custom-flight-outbound-no" class="form-control" placeholder="例如：JX840" value="JX840">
+              </div>
+              <div class="form-group-wrap">
+                <label for="custom-flight-outbound-from">出發機場 / 航廈</label>
+                <input type="text" id="custom-flight-outbound-from" class="form-control" placeholder="例如：TPE 桃園 (T1)" value="TPE 桃園 (T1)">
+              </div>
+              <div class="form-group-wrap">
+                <label for="custom-flight-outbound-to">抵達機場</label>
+                <input type="text" id="custom-flight-outbound-to" class="form-control" placeholder="例如：FUK 福岡 (國際線)" value="FUK 福岡 (國際線)">
+              </div>
+              <div class="form-group-wrap">
+                <label for="custom-flight-outbound-deptime">起飛時間</label>
+                <input type="time" id="custom-flight-outbound-deptime" class="form-control" value="14:45">
+              </div>
+              <div class="form-group-wrap">
+                <label for="custom-flight-outbound-arrtime">落地時間 (觸發 Day 1 入境取車)</label>
+                <input type="time" id="custom-flight-outbound-arrtime" class="form-control" value="18:00">
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:1rem; padding-top:0.75rem; border-top:1px dashed var(--color-slate-200);">
+            <strong style="font-size:0.9rem; color:#059669; display:block; margin-bottom:0.5rem;">🛬 回程班機 (Day 5 返台)</strong>
+            <div class="custom-flight-grid">
+              <div class="form-group-wrap">
+                <label for="custom-flight-inbound-no">回程航班號</label>
+                <input type="text" id="custom-flight-inbound-no" class="form-control" placeholder="例如：JX841" value="JX841">
+              </div>
+              <div class="form-group-wrap">
+                <label for="custom-flight-inbound-from">出發機場</label>
+                <input type="text" id="custom-flight-inbound-from" class="form-control" placeholder="例如：FUK 福岡 (國際線)" value="FUK 福岡 (國際線)">
+              </div>
+              <div class="form-group-wrap">
+                <label for="custom-flight-inbound-to">抵達機場 / 航廈</label>
+                <input type="text" id="custom-flight-inbound-to" class="form-control" placeholder="例如：TPE 桃園 (T1)" value="TPE 桃園 (T1)">
+              </div>
+              <div class="form-group-wrap">
+                <label for="custom-flight-inbound-deptime">起飛時間 (觸發 Day 5 提早 120分 安檢還車)</label>
+                <input type="time" id="custom-flight-inbound-deptime" class="form-control" value="19:10">
+              </div>
+              <div class="form-group-wrap">
+                <label for="custom-flight-inbound-arrtime">返抵時間</label>
+                <input type="time" id="custom-flight-inbound-arrtime" class="form-control" value="20:50">
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:1.25rem; display:flex; justify-content:flex-end; gap:0.5rem;">
+            <button type="button" class="btn btn-outline btn-sm" id="btn-custom-flight-cancel">取消</button>
+            <button type="button" class="btn btn-primary btn-sm" id="btn-custom-flight-save">💾 儲存並套用自訂航班</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- 行動端專屬底部常駐快速導航列 (Mobile Bottom Navigation Bar) -->
   <nav class="mobile-bottom-nav" id="mobile-bottom-nav" aria-label="行動端快速導航列">
