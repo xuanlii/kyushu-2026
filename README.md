@@ -95,10 +95,15 @@
   * 🧓 長輩：Ta-Da Chair 折疊拐杖椅、四腳防滑手杖、防滑抓地健走鞋、保溫瓶裝溫水。
   * 👶 嬰兒：人體工學減壓背巾、登機型輕量折疊推車、500ml 70°C 雙層真空保溫瓶、常溫副食品即食粥包。
 
-### 5. 🗺️ Leaflet 互動地圖視覺化
-* 整合 OpenStreetMap 與 Leaflet，動態標註當日景點編號圖標（1, 2, 3...）。
-* 繪製行程軌跡連線，自動對焦（fitBounds）。
-* 點擊標記即刻顯示抵達時間與 Google Maps 一鍵外部導航。
+### 5. 🗺️ Google Maps 全方位自駕路網與雙模地圖
+* **「🚗 在 Google Maps 開啟當日完整自駕導航」顯著操作鈕**：使用官方 Google Maps Directions URL Scheme (`https://www.google.com/maps/dir/?api=1&origin=...&destination=...&waypoints=...&travelmode=driving`)，一鍵將整天起點、所有途經中繼站（以 `|` 連接）與終點飯店匯入 Google Maps 進行即時導航！
+* **動態 Google Maps 嵌入式多站自駕視圖**：免 API Key 也能即時查看全日完整自駕動線、即時路況與多站點巡航。
+* **Google Maps JavaScript API 原生模式**：支援 API Key 設置彈窗（localStorage 本機儲存），解鎖彩色編號圖釘 Marker、富文字 InfoWindow、自駕折線 Polyline、即時路況圖層 (TrafficLayer)、衛星空照圖與街景 (StreetView)。
+* **景點卡片標配 Google Maps 三合一資訊列**：
+  * 「📍 Google Maps 即時導航」：一鍵開啟直達自駕導航。
+  * 「🔍 Google Maps 地點資訊與老饕評價」：查詢店鋪營業時間、老饕打分與最新菜單照片。
+  * 「🏙️ Google Maps 街景實景預覽」：360 度實景查看停車場位置與無障礙出入口。
+* **行動端手勢鎖定防護 (Touch UX Protection)**：手機滑動時自動鎖定地圖，點擊切換解鎖互動，杜絕頁面卡死。
 
 ### 6. 🧰 旅行隨身工具箱
 * 🎒 **三世代行李打包清單**：分類勾選、進度記憶、自動存檔。

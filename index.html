@@ -135,14 +135,32 @@
 
       <!-- 右欄：側邊地圖與自駕提醒面板 -->
       <aside class="planner-sidebar" id="kyushu-map-card">
+        <!-- 🚗 在 Google Maps 開啟當日完整自駕導航 -->
+        <div class="gmaps-day-nav-card" style="margin-bottom:0.75rem;">
+          <a id="btn-open-gmaps-day-nav" href="#" target="_blank" rel="noopener" class="btn-gmaps-primary-nav" aria-label="在 Google Maps 開啟當日完整自駕導航">
+            <span class="gmaps-icon">🚗</span>
+            <div class="gmaps-nav-text">
+              <span class="gmaps-nav-title">在 Google Maps 開啟當日完整自駕導航</span>
+              <span class="gmaps-nav-sub" id="gmaps-day-nav-stops-sub">一鍵串連當日所有中繼景點與終點</span>
+            </div>
+            <span class="gmaps-arrow">↗</span>
+          </a>
+        </div>
+
         <!-- 路線地圖卡片 -->
         <div class="sidebar-card">
           <div class="sidebar-card-title">
-            <span>🗺️ 本日自駕路網軌跡</span>
-            <span style="font-size:0.75rem; color:var(--color-slate-500); font-weight:normal;">Leaflet 即時聯動</span>
+            <span>🗺️ Google Maps 自駕路網視圖</span>
+            <div style="display:flex; gap:0.35rem; align-items:center;">
+              <span id="gmaps-mode-badge" class="badge" style="background:#e0f2fe; color:#0284c7; font-size:0.75rem; font-weight:600;">Google Maps 嵌入模式</span>
+              <button type="button" class="btn btn-outline btn-xs" id="btn-open-gmap-key-modal" title="設定個人 Google Maps API Key 解鎖路況與衛星圖">🔑 API Key</button>
+            </div>
           </div>
           <div class="map-wrapper" style="position:relative;">
-            <div id="kyushu-map"></div>
+            <div id="kyushu-map" class="google-map-container">
+              <iframe id="kyushu-gmap-iframe" title="Google Maps Kyushu Directions" class="gmap-embed-iframe" loading="lazy" allowfullscreen src="about:blank"></iframe>
+              <div id="kyushu-gmap-canvas" class="gmap-js-canvas" style="display:none; width:100%; height:100%;"></div>
+            </div>
             <!-- 手勢鎖定浮動切換器 (避免手機滑動頁面時卡住) -->
             <div class="map-gesture-overlay" id="map-gesture-overlay">
               <button type="button" class="btn-map-gesture-toggle" id="btn-map-gesture-toggle" aria-label="切換地圖互動模式">
@@ -152,7 +170,10 @@
             </div>
           </div>
           <div class="map-tools-bar">
-            <span>點擊地標可直接開啟 Google Maps 導航</span>
+            <div style="display:flex; gap:0.4rem; align-items:center; flex-wrap:wrap;">
+              <button type="button" class="btn btn-outline btn-xs" id="btn-toggle-gmap-traffic" title="切換即時路況圖層 (需 JS API 模式)" style="display:none;">🚦 即時路況</button>
+              <button type="button" class="btn btn-outline btn-xs" id="btn-toggle-gmap-mode" title="在嵌入模式與 JS API 模式間切換">🔄 切換視圖</button>
+            </div>
             <button type="button" class="btn btn-outline btn-xs" id="btn-toggle-map-expand" style="margin-left:auto;">↕️ 放大/縮小地圖</button>
           </div>
         </div>
@@ -423,6 +444,31 @@
             <button type="button" class="btn btn-outline btn-sm" id="btn-custom-flight-cancel">取消</button>
             <button type="button" class="btn btn-primary btn-sm" id="btn-custom-flight-save">💾 儲存並套用自訂航班</button>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔑 Google Maps API Key 設置彈窗 -->
+  <div class="modal-overlay" id="gmap-key-modal" style="display:none;" aria-hidden="true">
+    <div class="modal-content" style="max-width:500px;">
+      <div class="modal-header">
+        <div class="modal-title">🔑 Google Maps API Key 設置</div>
+        <button type="button" class="modal-close-btn" id="btn-close-gmap-key-modal" aria-label="關閉">&times;</button>
+      </div>
+      <div class="modal-body" style="padding:1.25rem;">
+        <p style="font-size:0.875rem; color:var(--color-slate-600); line-height:1.6; margin-top:0;">
+          網站預設提供<strong>免 Key 動態 Google Maps 嵌入模式</strong>，已具備完整自駕路線與多站視圖。<br>
+          若您擁有 Google Cloud <strong>Google Maps API Key</strong>，填寫後可解鎖<strong>原生多站圖釘、路況圖層 (TrafficLayer)、衛星空照圖與街景</strong>！
+        </p>
+        <div style="margin:1rem 0;">
+          <label for="input-gmap-api-key" style="display:block; font-size:0.85rem; font-weight:700; margin-bottom:0.4rem; color:var(--color-slate-700);">Google Maps API Key：</label>
+          <input type="text" id="input-gmap-api-key" class="form-control" placeholder="AIzaSy..." style="width:100%; padding:0.6rem; border:1px solid var(--color-slate-300); border-radius:6px; font-family:monospace; font-size:0.9rem;">
+          <span style="font-size:0.75rem; color:var(--color-slate-500); display:block; margin-top:0.3rem;">金鑰僅儲存在您的瀏覽器本機 (localStorage)，安全無虞。</span>
+        </div>
+        <div style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:1.25rem;">
+          <button type="button" class="btn btn-outline btn-sm" id="btn-clear-gmap-key">清除金鑰</button>
+          <button type="button" class="btn btn-primary btn-sm" id="btn-save-gmap-key">儲存並套用</button>
         </div>
       </div>
     </div>

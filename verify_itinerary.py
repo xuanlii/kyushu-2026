@@ -552,6 +552,123 @@ def test_flight_selector_and_sync():
     print(f"  -> 星宇雙點進出 (JX840 FUK ➔ JX847 KMJ) 準確於 {res['oj_d5_kmj_target']} 抵達熊本機場安檢還車 (經緯度精確錨定: {res['oj_kmj_lat']})！")
     print(f"  -> 華航熊本單點 (CI194 ➔ CI195) 與自訂航班時間漣漪動態同步 100% 驗證通過！")
 
+def test_google_maps_system():
+    print("[TEST] 9. 驗證 Google Maps 全面整合 (導航 URL Scheme、多站 Waypoints、Embed 視圖與 3 景點操作鈕)...")
+    with open(os.path.join(BASE_DIR, 'index.html'), 'r', encoding='utf-8') as f:
+        html_text = f.read()
+
+    # 1. 驗證 DOM 元件齊備
+    required_gmap_dom_ids = [
+        'btn-open-gmaps-day-nav', 'gmaps-day-nav-stops-sub', 'kyushu-map',
+        'kyushu-gmap-iframe', 'kyushu-gmap-canvas', 'gmaps-mode-badge',
+        'btn-open-gmap-key-modal', 'btn-toggle-gmap-mode', 'btn-toggle-gmap-traffic',
+        'gmap-key-modal', 'input-gmap-api-key', 'btn-save-gmap-key',
+        'btn-clear-gmap-key', 'btn-close-gmap-key-modal'
+    ]
+    for gid in required_gmap_dom_ids:
+        assert f'id="{gid}"' in html_text or f"id='{gid}'" in html_text, f"缺少 Google Maps DOM 元件: {gid}"
+
+    # 2. 透過 JavaScriptCore 驗證導航 URL Scheme 與 Waypoints 生成
+    js_gmap_test = """
+    var setTimeout = function(cb) { return 1; };
+    var clearTimeout = function() {};
+    var setInterval = function(cb) { return 1; };
+    var clearInterval = function() {};
+    var console = { log: print, warn: print, error: print };
+
+    function makeElement() {
+      return {
+        addEventListener: function() {},
+        querySelector: function() { return makeElement(); },
+        querySelectorAll: function() { return []; },
+        style: {},
+        classList: { add: function() {}, remove: function() {} },
+        setAttribute: function() {},
+        appendChild: function() {},
+        removeChild: function() {}
+      };
+    }
+    var document = {
+      documentElement: makeElement(),
+      addEventListener: function(event, cb) { this.cb = cb; },
+      getElementById: function(id) { return makeElement(); },
+      querySelectorAll: function() { return []; },
+      querySelector: function() { return makeElement(); },
+      createElement: function() { return makeElement(); },
+      body: makeElement()
+    };
+    var window = { innerWidth: 1200, addEventListener: function() {}, scrollTo: function() {}, isSecureContext: true };
+    var testStorage = {};
+    var localStorage = {
+      getItem: function(k) { return testStorage[k] !== undefined ? testStorage[k] : null; },
+      setItem: function(k, v) { testStorage[k] = String(v); }
+    };
+    var navigator = {};
+    var L = {
+      map: function() { return { setView: function() {}, on: function() {}, invalidateSize: function() {}, fitBounds: function() {}, removeLayer: function() {}, dragging: { enable: function(){} } }; },
+      tileLayer: function() { return { addTo: function() {} }; },
+      marker: function() { return { addTo: function() { return { bindPopup: function() { return { on: function() {} }; } }; } }; },
+      polyline: function() { return { addTo: function() {} }; },
+      latLngBounds: function() { return { isValid: function() { return false; } }; },
+      divIcon: function() {},
+      featureGroup: function() { return { getBounds: function() { return { pad: function() { return {}; } }; } }; }
+    };
+
+    load("data.js");
+    load("app.js");
+    document.cb();
+
+    var gmaps = window.KYUSHU_GMAPS;
+    if (!gmaps) throw new Error("window.KYUSHU_GMAPS is missing!");
+
+    // 測試多站 URL Scheme 生成 (起點 + 2 個中繼站 + 終點)
+    var testStops = [
+      { nameZh: "福岡機場", lat: 33.5859, lng: 130.4507 },
+      { nameZh: "太宰府天滿宮", lat: 33.5215, lng: 130.5348 },
+      { nameZh: "柳川遊船", lat: 33.1608, lng: 130.4074 },
+      { nameZh: "熊本城飯店", lat: 32.8032, lng: 130.7079 }
+    ];
+
+    var dayNavUrl = gmaps.buildGoogleMapsDayNavUrl(testStops);
+    var embedUrl = gmaps.buildGoogleMapsEmbedUrl(testStops);
+    var singleNavUrl = gmaps.buildGoogleMapsDayNavUrl([testStops[0]]);
+
+    // 測試景點 3 大功能按鈕
+    var spotLinks = gmaps.getSpotGmapLinks(testStops[1]);
+
+    print(JSON.stringify({
+      dayNavUrl: dayNavUrl,
+      embedUrl: embedUrl,
+      singleNavUrl: singleNavUrl,
+      spotLinks: spotLinks
+    }));
+    """
+    res = json.loads(run_js(js_gmap_test))
+
+    # 驗證 Directions URL Scheme
+    assert "https://www.google.com/maps/dir/?api=1" in res['dayNavUrl'], "缺少官方 Directions URL 協議頭"
+    assert "origin=33.5859%2C130.4507" in res['dayNavUrl'], "起點座標未正確編碼"
+    assert "destination=32.8032%2C130.7079" in res['dayNavUrl'], "終點座標未正確編碼"
+    assert "waypoints=33.5215%2C130.5348%7C33.1608%2C130.4074" in res['dayNavUrl'] or "33.5215,130.5348|33.1608,130.4074" in res['dayNavUrl'], "中繼站未以 | 完整串接"
+    assert "travelmode=driving" in res['dayNavUrl'], "缺少自駕模式 travelmode=driving"
+
+    # 驗證單站 URL Scheme
+    assert "destination=33.5859%2C130.4507" in res['singleNavUrl'], "單站導航應以 destination 定位"
+
+    # 驗證免 Key 嵌入式路線 URL
+    assert "maps.google.com/maps?saddr=33.5859,130.4507" in res['embedUrl'], "免 Key Embed 起點設定異常"
+    assert "output=embed" in res['embedUrl'], "缺少 output=embed 參數"
+    assert "+to:" in res['embedUrl'], "免 Key Embed 多站應以 +to: 連接"
+
+    # 驗證景點 3 大 Google Maps 動作
+    assert "https://www.google.com/maps/dir/?api=1&destination=" in res['spotLinks']['navUrl'], "景點導航按鈕協議錯誤"
+    assert "https://www.google.com/maps/search/?api=1&query=" in res['spotLinks']['infoUrl'], "老饕評價按鈕協議錯誤"
+    assert "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=" in res['spotLinks']['streetViewUrl'], "街景實景按鈕協議錯誤"
+
+    print("  -> Google Maps 官方自駕 Directions URL Scheme (含起點、中繼站 | 串聯、終點) 驗證 100% 正確！")
+    print("  -> 免 API Key 動態 Google Maps 嵌入式路線多站視圖驗證 100% 正確！")
+    print("  -> 景點卡片標配「📍即時導航」、「🔍老饕評價」、「🏙️街景實景」三合一功能鏈接驗證通過！")
+
 if __name__ == '__main__':
     print("==================================================")
     print("🚀 開始執行 2026 九州跨世代自由行深度系統自動化測試")
@@ -564,8 +681,9 @@ if __name__ == '__main__':
         test_date_and_time_formatters()
         test_portable_bundle()
         test_flight_selector_and_sync()
+        test_google_maps_system()
         print("==================================================")
-        print("🎉 全部 8 大項自動化深度驗證 100% 通過！系統品質卓越！")
+        print("🎉 全部 9 大項自動化深度驗證 100% 通過！系統品質卓越！")
         print("==================================================")
     except AssertionError as e:
         print(f"❌ 測試失敗: {e}")

@@ -1050,14 +1050,97 @@ body {
   justify-content: space-between;
 }
 
-/* 地圖容器 */
+/* Google Maps 導航主操作鈕 (Primary Driving Navigation Button) */
+.gmaps-day-nav-card {
+  width: 100%;
+}
+
+.btn-gmaps-primary-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff !important;
+  text-decoration: none !important;
+  padding: 0.85rem 1.15rem;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-gmaps-primary-nav:hover {
+  background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(2, 132, 199, 0.45);
+}
+
+.btn-gmaps-primary-nav:active {
+  transform: translateY(0);
+}
+
+.btn-gmaps-primary-nav .gmaps-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.btn-gmaps-primary-nav .gmaps-nav-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.btn-gmaps-primary-nav .gmaps-nav-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.01em;
+}
+
+.btn-gmaps-primary-nav .gmaps-nav-sub {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.88);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-gmaps-primary-nav .gmaps-arrow {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.9);
+  flex-shrink: 0;
+}
+
+/* Google Maps 地圖容器 */
 #kyushu-map {
   width: 100%;
   height: 380px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-slate-200);
   background: #e2e8f0;
+  position: relative;
+  overflow: hidden;
   z-index: 1;
+  transition: height var(--transition-normal);
+}
+
+.google-map-container iframe.gmap-embed-iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+  border-radius: inherit;
+}
+
+.google-map-container .gmap-js-canvas {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
 }
 
 .map-tools-bar {
@@ -1067,6 +1150,70 @@ body {
   margin-top: 0.5rem;
   font-size: 0.8rem;
   color: var(--color-slate-600);
+}
+
+/* 景點卡片 Google Maps 專屬操作列 (Spot 3-Button Actions) */
+.spot-gmap-actions-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.65rem;
+  padding-top: 0.65rem;
+  border-top: 1px dashed var(--color-slate-200);
+}
+
+.btn-gmap-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-decoration: none !important;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  line-height: 1.2;
+}
+
+.btn-gmap-action .btn-gmap-icon {
+  font-size: 0.9rem;
+}
+
+.btn-gmap-action.btn-gmap-nav {
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.btn-gmap-action.btn-gmap-nav:hover {
+  background: #15803d;
+  color: #ffffff;
+  border-color: #15803d;
+}
+
+.btn-gmap-action.btn-gmap-info {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.btn-gmap-action.btn-gmap-info:hover {
+  background: #1d4ed8;
+  color: #ffffff;
+  border-color: #1d4ed8;
+}
+
+.btn-gmap-action.btn-gmap-streetview {
+  background: #faf5ff;
+  color: #7e22ce;
+  border: 1px solid #e9d5ff;
+}
+
+.btn-gmap-action.btn-gmap-streetview:hover {
+  background: #7e22ce;
+  color: #ffffff;
+  border-color: #7e22ce;
 }
 
 /* 景點庫抽屜 / 彈窗 (Spot Picker Modal / Drawer) */
