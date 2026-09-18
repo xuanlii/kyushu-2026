@@ -36,19 +36,34 @@ def test_files_exist():
     print("  -> 所有必要核心檔案皆存在且體量健全！")
 
 def test_data_integrity():
-    print("[TEST] 2. 驗證景點資料庫、76 條路網校準矩陣與 5 大範本完整性...")
+    print("[TEST] 2. 驗證景點資料庫、校準矩陣與 5 大範本全面具備完整 5 天 (Day 1~5)...")
     js_test = """
     load("data.js");
     var spotCount = KYUSHU_SPOTS.length;
     var corridorCount = Object.keys(KYUSHU_CORRIDORS).length;
     var presetCount = ITINERARY_PRESETS.length;
-    print(JSON.stringify({ spots: spotCount, corridors: corridorCount, presets: presetCount }));
+    var presetData = ITINERARY_PRESETS.map(function(p) {
+      return {
+        id: p.id,
+        name: p.name,
+        totalDays: p.totalDays,
+        daysLength: p.days.length,
+        days: p.days.map(function(d){ return d.day; })
+      };
+    });
+    print(JSON.stringify({ spots: spotCount, corridors: corridorCount, presets: presetCount, presetData: presetData }));
     """
     output = json.loads(run_js(js_test))
     assert output['spots'] >= 35, f"景點數量不足: {output['spots']}"
     assert output['corridors'] >= 60, f"校準矩陣數量不足: {output['corridors']}"
     assert output['presets'] >= 5, f"範本數量不足: {output['presets']}"
-    print(f"  -> 資料庫通過驗證：包含 {output['spots']} 處核心景點、{output['corridors']} 條精算校準走廊、{output['presets']} 大經典範本！")
+
+    # 驗證所有範本皆強制具備完整的 5 天 (Day 1 ~ Day 5)
+    for p in output['presetData']:
+        assert p['totalDays'] == 5, f"範本 {p['id']} totalDays 不為 5: {p['totalDays']}"
+        assert p['daysLength'] == 5, f"範本 {p['id']} 天數不為 5 天: {p['daysLength']}"
+        assert p['days'] == [1, 2, 3, 4, 5], f"範本 {p['id']} 天數序號不為 [1,2,3,4,5]: {p['days']}"
+    print(f"  -> 資料庫通過驗證：包含 {output['spots']} 處核心景點、{output['corridors']} 條精算校準走廊、{output['presets']} 大經典範本（全部嚴格具備 5 天 4 夜，Day 1~5）！")
 
     # 驗證報告關鍵景點完整性
     key_spots = [

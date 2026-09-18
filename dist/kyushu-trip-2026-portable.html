@@ -2282,8 +2282,8 @@ body {
  * - 方案 A（原 DM 5日福岡進出拉車版）
  * - 方案 B（極致推薦：福岡進/熊本出 雙點進出自駕版）
  * - 方案 C（中九州舒活精華 熊本進/熊本出版）
- * - 熟齡長輩 3 日悠閒慢遊版
- * - 年輕潮流美拍 4 日極速版
+ * - 40~60歲 熟齡舒活・名湯祈福 5 天 4 夜慢遊全覽
+ * - 25~35歲 潮流美拍・巨城名物 5 天 4 夜極速全覽
  * 
  * 包含 40~60 歲長輩（步數、坡度、輪椅/柺杖友善、休息座椅、溫泉、清淡熱湯）
  * 25~35 歲年輕人（IG 美拍、打卡美食、潮流商場、特色列車）
@@ -3779,113 +3779,165 @@ const ITINERARY_PRESETS = [
   },
   {
     id: "preset-elder-3days",
-    name: "熟齡長輩 3 日悠閒慢遊版 (🧓 低步數・名湯・平緩動線)",
-    badge: "長輩舒活版",
+    name: "40~60歲 熟齡舒活・名湯祈福 5 天 4 夜慢遊全覽 (🧓 低步數・名湯・平緩動線)",
+    badge: "熟齡慢遊 5天4夜",
     badgeClass: "badge-success",
-    description: "專為 40~60 歲長輩與拄杖家人量身規劃：太宰府平坦繞道、別府海地獄足湯、名湯會席料理、門司港海風漫步，每日行車不超過 1.5 小時。",
-    totalDays: 3,
+    description: "專為 40~60 歲長輩與拄杖家人量身規劃的極致 5 天 4 夜：舞鶴公園平步、別府海地獄溫泉足湯、名湯會席料理、門司港海風懷舊、太宰府平緩古剎祈福、柳川大名庭園極品鰻魚飯與博多市區低步數美食名產巡禮，每日行車順向不超過 1.5 小時。",
+    totalDays: 5,
     flightInfo: "台北 ⇄ 福岡 (FUK) 往返",
     days: [
       {
         day: 1,
         date: "2026/02/24",
         dayOfWeek: "星期二",
-        title: "福岡抵達 ➔ 太宰府天滿宮 (平坦繞道) ➔ 宿福岡市區",
+        title: "福岡抵達 ➔ 舞鶴公園城跡平步 ➔ 博多運河城水舞休歇 ➔ 宿福岡市區",
         departureTime: "12:00",
-        warningNotes: "全程平坦無障礙，太宰府避開太鼓拱橋階梯走兩側平道。",
+        warningNotes: "落地後輕鬆調整時差，全程平坦無障礙，晚間品嚐博多名物清淡溫潤水瀧雞肉鍋。",
         items: [
           { spotId: "fuk-airport", nameZh: "福岡機場 (FUK) 抵達接駁", durationMinutes: 60, customNotes: "通關迅速，搭乘專車直達市區飯店放置大行李。" },
-          { spotId: "dazaifu-tenmangu", nameZh: "太宰府天滿宮 (祈求長壽安康・現烤熱梅枝餅)", durationMinutes: 105, customNotes: "行車 30 分鐘 (18km)。走平坦無障礙步道摸神牛、品嚐剛出爐熱梅枝餅配熱煎茶。" },
-          { spotId: "fukuoka-hotel-hakata", nameZh: "夜宿：福岡市區飯店 (享用博多水瀧雞肉鍋)", durationMinutes: 720, customNotes: "晚餐品嚐慢火熬煮膠原蛋白白濁雞湯，溫熱暖胃容易消化。" }
+          { spotId: "maizuru-park", nameZh: "舞鶴公園 & 福岡城跡 (平坦林蔭散步)", durationMinutes: 60, customNotes: "早晨陽光和煦，平緩步道散步活動雙腿，遠眺福岡古城石垣。" },
+          { spotId: "canal-city-hakata", nameZh: "博多運河城 (水舞休憩沙發 & 室內空調)", durationMinutes: 90, customNotes: "坐在舒適長椅欣賞運河音樂水舞秀，全室內平坦好走。" },
+          { spotId: "fukuoka-hotel-hakata", nameZh: "夜宿：福岡市區飯店 (享用博多水瀧雞肉鍋)", durationMinutes: 720, customNotes: "晚餐品嚐慢火熬煮膠原蛋白白濁雞湯，溫熱暖胃、容易消化。" }
         ]
       },
       {
         day: 2,
         date: "2026/02/25",
         dayOfWeek: "星期三",
-        title: "福岡 ➔ 別府海地獄足湯 ➔ 別府溫泉海景會席料理",
+        title: "福岡 ➔ 別府海地獄足湯 ➔ 別府溫泉海景會席料理 (名湯舒活)",
         departureTime: "09:30",
-        warningNotes: "車程適中，中途停靠休息站上洗手間。",
+        warningNotes: "車程適中，大分道高速平穩舒適，中途可停高速休息站活動筋骨。",
         items: [
-          { spotId: "beppu-sea-jigoku", nameZh: "別府海地獄 (地熱足湯深層放鬆)", durationMinutes: 90, customNotes: "行車 1 小時 50 分 (135km)。走無障礙步道賞鈷藍溫泉，脫鞋享受溫暖足湯。" },
-          { spotId: "beppu-onsen-hotel", nameZh: "夜宿：別府海景溫泉飯店", durationMinutes: 720, customNotes: "早早入住，長輩下午享受飯店露天溫泉與按摩座椅，享用頂級豐後牛御膳。" }
+          { spotId: "fukuoka-hotel-hakata", nameZh: "出發：福岡市區飯店", durationMinutes: 15, customNotes: "09:30 悠閒出發，走大分自動車道前往別府名湯。" },
+          { spotId: "beppu-sea-jigoku", nameZh: "別府海地獄 (地熱足湯深層放鬆・溫泉蛋)", durationMinutes: 90, customNotes: "行車 1 小時 50 分 (140km)。走無障礙平緩步道賞鈷藍溫泉，脫鞋享受溫暖足湯舒緩雙腿。" },
+          { spotId: "beppu-onsen-hotel", nameZh: "夜宿：別府海景溫泉飯店 (露天名湯與極品會席料理)", durationMinutes: 720, customNotes: "早早入住，長輩下午享受飯店無障礙大浴場、按摩座椅，晚間享用頂級豐後牛御膳。" }
         ]
       },
       {
         day: 3,
         date: "2026/02/26",
         dayOfWeek: "星期四",
-        title: "別府 ➔ 門司港大正懷舊海港漫步 ➔ 福岡機場返台",
-        departureTime: "09:30",
-        warningNotes: "門司港港灣全平坦，咖啡座眾多可隨時歇息。",
-        items: [
-          { spotId: "mojiko-retro", nameZh: "門司港懷舊區 (平坦港灣步道與舊三井俱樂部)", durationMinutes: 120, customNotes: "行車 1 小時 15 分 (85km)。漫步大正復古港口、品嚐溫和起司焗烤與海鮮熱湯。" },
-          { spotId: "fuk-airport", nameZh: "福岡機場 (FUK) 順利返台", durationMinutes: 120, customNotes: "行車 1 小時 15 分 (78km)。直達機場免稅店採買九州名產，快樂返國。" }
-        ]
-      }
-    ]
-  },
-  {
-    id: "preset-youth-4days",
-    name: "年輕潮流美拍 4 日極速版 (📸 IG打卡・鋼彈・糸島・拉麵購物)",
-    badge: "潮流極速版",
-    badgeClass: "badge-primary",
-    description: "專為 25~35 歲年輕探索族群設計：糸島天使之翼打卡、LaLaport 實物大鋼彈聲光秀、由布院甜點狂吃、門司港燒咖哩與博多拉麵大戰！",
-    totalDays: 4,
-    flightInfo: "台北 ⇄ 福岡 (FUK) 往返",
-    days: [
-      {
-        day: 1,
-        date: "2026/02/24",
-        dayOfWeek: "星期二",
-        title: "福岡落地 ➔ 糸島海中鳥居與天使之翼 ➔ 博多運河城拉麵競技館",
-        departureTime: "10:30",
-        warningNotes: "IG 照片拍爆的一天，相機與行動電源備妥！",
-        items: [
-          { spotId: "fuk-airport", nameZh: "福岡機場取車出發", durationMinutes: 60, customNotes: "取車後直奔西海岸絕美糸島。" },
-          { spotId: "itoshima-futamigaura", nameZh: "糸島櫻井二見之浦 (天使之翼 & 海中鳥居)", durationMinutes: 105, customNotes: "行車 40 分鐘 (32km)。拍爆天使之翼彩繪牆與海邊鞦韆，吃手工海鹽布丁。" },
-          { spotId: "canal-city-hakata", nameZh: "博多運河城 (水舞秀 & 拉麵競技館)", durationMinutes: 120, customNotes: "行車 45 分鐘 (35km)。看 3D 動漫投影水舞，狂嗑黑豚骨拉麵。" },
-          { spotId: "fukuoka-hotel-hakata", nameZh: "夜宿：福岡天神商圈 (逛天神地下街與屋台)", durationMinutes: 720, customNotes: "夜晚直衝中洲屋台吃烤串喝 Highball。" }
-        ]
-      },
-      {
-        day: 2,
-        date: "2026/02/25",
-        dayOfWeek: "星期三",
-        title: "福岡 ➔ 湯布院金鱗湖文青甜點 ➔ 由布院之森列車打卡 ➔ 宿由布院",
-        departureTime: "08:45",
-        warningNotes: "B-Speak 生乳捲需提早購買以免售罄！",
-        items: [
-          { spotId: "yufuin-kinrin-lake", nameZh: "湯布院金鱗湖 & 湯之坪文青小店", durationMinutes: 135, customNotes: "行車 1 小時 45 分 (120km)。拍水中鳥居倒影、狂吃 Milch 起司蛋糕與金賞可樂餅。" },
-          { spotId: "yufuin-no-mori-train", nameZh: "由布院之森觀光特急列車打卡", durationMinutes: 60, customNotes: "由布院車站月台捕捉復古墨綠列車絕美身影。" },
-          { spotId: "beppu-onsen-hotel", nameZh: "夜宿：別府海景旅宿 (日落打卡)", durationMinutes: 720, customNotes: "行車 35 分鐘 (25km)。泡露天溫泉拍海景網美照。" }
-        ]
-      },
-      {
-        day: 3,
-        date: "2026/02/26",
-        dayOfWeek: "星期四",
-        title: "別府海地獄 ➔ 門司港大正燒咖哩 ➔ 和布刈公園關門大橋",
+        title: "別府 ➔ 湯布院金鱗湖平緩晨步 ➔ 門司港大正懷舊海港漫步 ➔ 宿福岡市區",
         departureTime: "09:00",
-        warningNotes: "門司港藍翼吊橋開合時間注意捕捉。",
+        warningNotes: "清晨湯布院金鱗湖霧氣裊裊、無人潮干擾；午後門司港全平坦海堤好推車扶杖。",
         items: [
-          { spotId: "beppu-sea-jigoku", nameZh: "別府海地獄 (熱氣蒸騰藍色魔湯)", durationMinutes: 75, customNotes: "拍 98°C 鈷藍夢幻泉水白煙大景，吃地熱蒸布丁。" },
-          { spotId: "mojiko-retro", nameZh: "門司港懷舊區 (起司燒咖哩 & 香蕉人拍搞笑照)", durationMinutes: 120, customNotes: "行車 1 小時 15 分 (85km)。吃牽絲起司燒咖哩、拍藍翼門司吊橋開合。" },
-          { spotId: "mekari-park-kanmon-bridge", nameZh: "和布刈公園 (關門大橋震撼超廣角)", durationMinutes: 45, customNotes: "行車 10 分鐘 (3km)。超近距離與跨海大橋鋼索同框合影。" },
-          { spotId: "fukuoka-hotel-hakata", nameZh: "夜宿：福岡博多 (天神買爆藥妝與電器)", durationMinutes: 720, customNotes: "行車 1 小時 20 分 (78km) 返福岡天神。" }
+          { spotId: "beppu-onsen-hotel", nameZh: "出發：別府溫泉飯店", durationMinutes: 15, customNotes: "09:00 晨湯後出發，走別府由布景觀線前往由布院。" },
+          { spotId: "yufuin-kinrin-lake", nameZh: "湯布院金鱗湖 (平坦木棧道・熱蕎麥麵・早茶)", durationMinutes: 90, customNotes: "行車 35 分鐘 (25km)。避開人潮清晨散步，金鱗湖畔享用古風熱蕎麥麵與溫熱甘酒。" },
+          { spotId: "mojiko-retro", nameZh: "門司港懷舊區 (平坦港灣步道・舊門司三井俱樂部午餐)", durationMinutes: 120, customNotes: "行車 1 小時 15 分 (85km)。漫步大正復古港口、品嚐溫和起司焗烤燒咖哩與海鮮熱湯。" },
+          { spotId: "mekari-park-kanmon-bridge", nameZh: "和布刈公園展望台 (無障礙眺望關門大橋急流絕景)", durationMinutes: 45, customNotes: "行車 10 分鐘 (3km)。車輛直達山頂無障礙觀景台，俯瞰關門海峽壯麗急流。" },
+          { spotId: "fukuoka-hotel-hakata", nameZh: "夜宿：福岡市區飯店 (博多天神商圈)", durationMinutes: 720, customNotes: "行車 1 小時 20 分 (78km) 返福岡市區飯店，享受充裕夜間休息。" }
         ]
       },
       {
         day: 4,
         date: "2026/02/27",
         dayOfWeek: "星期五",
-        title: "太宰府隈研吾星巴克 ➔ 福岡 LaLaport 實物大鋼彈 ➔ 機場返台",
+        title: "福岡 ➔ 太宰府天滿宮 (古剎祈福・平緩綠蔭) ➔ 柳川立花邸御花 (大名庭園・極品蒸籠鰻魚飯) ➔ 宿福岡",
         departureTime: "09:30",
-        warningNotes: "LaLaport 記得預留足夠時間退稅。",
+        warningNotes: "太宰府走平坦無障礙繞道避開拱橋階梯；柳川長輩免深蹲上搖櫓船，直入立花邸賞名園吃熱騰騰蒸籠鰻魚飯。",
         items: [
-          { spotId: "dazaifu-tenmangu", nameZh: "太宰府天滿宮 (隈研吾星巴克美拍)", durationMinutes: 90, customNotes: "行車 30 分鐘 (18km)。木構幾何建築 IG 超火機位、吃現烤梅枝餅。" },
-          { spotId: "lalaport-fukuoka", nameZh: "福岡 LaLaport (24.8米實物大鋼彈聲光秀)", durationMinutes: 150, customNotes: "行車 25 分鐘 (14km)。看鋼彈變形秀、逛 Gundam Park、狂買免稅潮牌。" },
-          { spotId: "fuk-airport", nameZh: "福岡機場 (FUK) 採買伴手禮回國", durationMinutes: 120, customNotes: "行車 15 分鐘 (5km) 抵達機場，免稅店爆買伴手禮返台。" }
+          { spotId: "fukuoka-hotel-hakata", nameZh: "出發：福岡市區飯店", durationMinutes: 15, customNotes: "09:30 出發，南下太宰府參拜。" },
+          { spotId: "dazaifu-tenmangu", nameZh: "太宰府天滿宮 (平坦無障礙祈福・摸神牛・現烤熱梅枝餅)", durationMinutes: 105, customNotes: "行車 30 分鐘 (18km)。走平坦綠蔭繞道參拜摸御神牛祈求健康長壽，享用剛出爐熱梅枝餅配熱茶。" },
+          { spotId: "yanagawa-tachibana-ohana", nameZh: "柳川藩主立花邸 御花 (松濤園賞景 & 頂級蒸籠鰻魚飯名宴)", durationMinutes: 120, customNotes: "行車 50 分鐘 (55km)。免去搖櫓船深蹲之苦，直接入座立花大名御花松濤園，品嚐撲鼻木香蒸籠鰻魚飯。" },
+          { spotId: "fukuoka-hotel-hakata", nameZh: "夜宿：福岡市區飯店 (市中心休憩放鬆)", durationMinutes: 720, customNotes: "行車 1 小時 (65km) 返福岡飯店，長輩舒適就寢。" }
+        ]
+      },
+      {
+        day: 5,
+        date: "2026/02/28",
+        dayOfWeek: "星期六",
+        title: "福岡市區 ➔ JR博多城伴手禮巡禮 (低步數空調名店街) ➔ 福岡機場 (FUK) 返台",
+        departureTime: "10:00",
+        warningNotes: "飯店悠閒退房，博多城電梯無障礙採買，行李直達機場，通關返台無負擔。",
+        items: [
+          { spotId: "fukuoka-hotel-hakata", nameZh: "出發：福岡市區飯店退房", durationMinutes: 15, customNotes: "10:00 悠閒退房，行李直接上車或寄放櫃檯。" },
+          { spotId: "hakata-station", nameZh: "JR 博多城 / 伴手禮名店街 (電梯直達・清雅和風午餐・伴手禮採買)", durationMinutes: 120, customNotes: "行車 6 分鐘 (1.2km)。全空調平坦無障礙，直梯直達名店街，買齊明太子、長崎蛋糕、銘菓伴手禮。" },
+          { spotId: "fuk-airport", nameZh: "福岡機場 (FUK) 順利登機返台", durationMinutes: 120, customNotes: "行車 12 分鐘 (4km) 抵達機場國際航廈，免稅店輕鬆補貨，滿載溫馨回憶平安返國。" }
+        ]
+      }
+    ]
+  },
+  {
+    id: "preset-youth-4days",
+    name: "25~35歲 潮流美拍・巨城名物 5 天 4 夜極速全覽 (📸 IG打卡・鋼彈・糸島・潮流購物)",
+    badge: "潮流極速 5天4夜",
+    badgeClass: "badge-primary",
+    description: "專為 25~35 歲年輕探索族群設計的 5 天 4 夜極速全覽：糸島二見之浦天使之翼打卡、太宰府星巴克美拍、由布院金鱗湖甜點、門司港牽絲起司燒咖哩與關門大橋超廣角、唐戶市場握壽司、鳥栖OUTLETS、天神地下街潮流狂買、LaLaport 實物大鋼彈聲光秀與博多拉麵大戰！",
+    totalDays: 5,
+    flightInfo: "台北 ⇄ 福岡 (FUK) 往返",
+    days: [
+      {
+        day: 1,
+        date: "2026/02/24",
+        dayOfWeek: "星期二",
+        title: "福岡落地取車 ➔ 糸島櫻井二見之浦 (天使之翼 & 海中鳥居) ➔ 博多運河城拉麵競技館 ➔ 宿福岡天神",
+        departureTime: "10:30",
+        warningNotes: "IG 照片拍爆的一天，相機與行動電源備妥！夜晚直衝天神地下街與中洲屋台街吃烤串喝 Highball。",
+        items: [
+          { spotId: "fuk-airport", nameZh: "福岡機場取車出發", durationMinutes: 60, customNotes: "辦理租車出關，直奔西海岸絕美糸島海景線。" },
+          { spotId: "itoshima-futamigaura", nameZh: "糸島櫻井二見之浦 (天使之翼 & 海中鳥居 & 椰子樹鞦韆)", durationMinutes: 105, customNotes: "行車 40 分鐘 (32km)。拍爆天使之翼彩繪牆與海邊鞦韆，吃手工海鹽布丁看夕陽浪花。" },
+          { spotId: "canal-city-hakata", nameZh: "博多運河城 (水舞秀 & 拉麵競技館豚骨拉麵)", durationMinutes: 120, customNotes: "行車 45 分鐘 (35km)。看 3D 動漫投影水舞秀，拉麵競技館狂嗑濃郁黑豚骨拉麵。" },
+          { spotId: "fukuoka-hotel-hakata", nameZh: "夜宿：福岡天神商圈 (逛天神商場與中洲屋台)", durationMinutes: 720, customNotes: "下榻市中心，夜晚直衝天神地下街與中洲屋台吃鐵鍋餃子配 Highball。" }
+        ]
+      },
+      {
+        day: 2,
+        date: "2026/02/25",
+        dayOfWeek: "星期三",
+        title: "福岡 ➔ 太宰府隈研吾星巴克美拍 ➔ 湯布院金鱗湖文青甜點 ➔ 由布院之森列車打卡 ➔ 宿別府海景",
+        departureTime: "08:45",
+        warningNotes: "隈研吾星巴克IG幾何木構機位，B-Speak生乳捲與Milch起司蛋糕必搶！",
+        items: [
+          { spotId: "fukuoka-hotel-hakata", nameZh: "出發：福岡市區飯店", durationMinutes: 15, customNotes: "08:45 出發，早起搶拍太宰府空景。" },
+          { spotId: "dazaifu-tenmangu", nameZh: "太宰府天滿宮 (隈研吾星巴克美拍・現烤熱梅枝餅)", durationMinutes: 90, customNotes: "行車 30 分鐘 (18km)。木構幾何建築 IG 超火機位、表參道邊走邊吃熱梅枝餅。" },
+          { spotId: "yufuin-kinrin-lake", nameZh: "湯布院金鱗湖 & 湯之坪文青小店 (Milch蛋糕・金賞可樂餅)", durationMinutes: 120, customNotes: "行車 1 小時 25 分 (110km)。拍水中鳥居倒影、狂吃 Milch 半熟起司蛋糕與金賞可樂餅。" },
+          { spotId: "yufuin-no-mori-train", nameZh: "由布院之森觀光特急列車打卡 (復古綠皮列車同框)", durationMinutes: 60, customNotes: "由布院車站月台捕捉復古墨綠列車絕美身影，文青感拉滿。" },
+          { spotId: "beppu-onsen-hotel", nameZh: "夜宿：別府海景旅宿 (無邊際露天風呂海景打卡)", durationMinutes: 720, customNotes: "行車 35 分鐘 (25km)。泡露天溫泉拍海天一色夕陽網美照，享受豐後海鮮盛宴。" }
+        ]
+      },
+      {
+        day: 3,
+        date: "2026/02/26",
+        dayOfWeek: "星期四",
+        title: "別府海地獄魔湯 ➔ 別府空中纜車絕景 ➔ 門司港大正牽絲燒咖哩 ➔ 和布刈公園關門大橋超廣角 ➔ 宿福岡",
+        departureTime: "09:00",
+        warningNotes: "拍 98°C 鈷藍夢幻泉水大景與鶴見岳高空全景，門司港藍翼吊橋開合時間注意捕捉。",
+        items: [
+          { spotId: "beppu-onsen-hotel", nameZh: "出發：別府溫泉飯店", durationMinutes: 15, customNotes: "09:00 出發，展開北九州絕景之旅。" },
+          { spotId: "beppu-sea-jigoku", nameZh: "別府海地獄 (熱氣蒸騰藍色魔湯・極品溫泉布丁)", durationMinutes: 75, customNotes: "行車 15 分鐘 (6km)。拍 98°C 鈷藍夢幻泉水白煙大景，吃地熱手工蒸布丁。" },
+          { spotId: "beppu-ropeway", nameZh: "別府空中纜車 (10分鐘極速登頂鶴見岳俯瞰別府灣)", durationMinutes: 75, customNotes: "行車 12 分鐘 (7km)。搭乘九州最大級空中纜車直達山頂，俯瞰壯闊別府灣全景。" },
+          { spotId: "mojiko-retro", nameZh: "門司港懷舊區 (牽絲起司燒咖哩・香蕉人拍搞笑照・藍翼吊橋)", durationMinutes: 120, customNotes: "行車 1 小時 18 分 (98km)。吃牽絲焗烤起司燒咖哩、拍藍翼門司吊橋開合與香蕉人雕像同框。" },
+          { spotId: "mekari-park-kanmon-bridge", nameZh: "和布刈公園展望台 (關門大橋跨海震撼超廣角)", durationMinutes: 45, customNotes: "行車 10 分鐘 (3km)。超近距離與跨海大橋鋼索同框合影，視野震撼。" },
+          { spotId: "fukuoka-hotel-hakata", nameZh: "夜宿：福岡天神 (深夜居酒屋與黑豚骨拉麵宵夜)", durationMinutes: 720, customNotes: "行車 1 小時 20 分 (78km) 返福岡天神，品嚐博多極上牛腸鍋與拉麵。" }
+        ]
+      },
+      {
+        day: 4,
+        date: "2026/02/27",
+        dayOfWeek: "星期五",
+        title: "唐戶市場海鮮大快朵頤 ➔ 鳥栖 PREMIUM OUTLETS 潮流血拼 ➔ 天神地下街潮牌掃貨 ➔ 宿福岡",
+        departureTime: "08:30",
+        warningNotes: "下關唐戶市場狂吃握壽司與河豚生魚片，鳥栖OUTLETS美式日系球鞋折扣拉滿！",
+        items: [
+          { spotId: "fukuoka-hotel-hakata", nameZh: "出發：福岡天神飯店", durationMinutes: 15, customNotes: "08:30 早起出發，九州道直奔下關唐戶市場。" },
+          { spotId: "karato-market", nameZh: "唐戶市場 (下關海鮮市場・新鮮握壽司與炸河豚狂嗑)", durationMinutes: 90, customNotes: "行車 1 小時 20 分 (82km)。市場內現挑肥美黑鮪魚大腹、海膽握壽司與酥炸河豚，海邊階梯席地大快朵頤。" },
+          { spotId: "tosu-outlets", nameZh: "鳥栖 PREMIUM OUTLETS (九州最大暢貨中心爆買潮牌運動鞋)", durationMinutes: 150, customNotes: "行車 1 小時 20 分 (105km)。聚集各大國際潮牌、運動球鞋與日系服飾，折扣瘋搶。" },
+          { spotId: "tenjin-underground", nameZh: "福岡天神地下街 (19世紀歐風商街・日系流行服飾與藥妝)", durationMinutes: 120, customNotes: "行車 38 分鐘 (35km)。走入南歐石板風格地下街，掃貨美妝藥妝、日系文創與熱門起司塔。" },
+          { spotId: "fukuoka-hotel-hakata", nameZh: "夜宿：福岡天神/博多 (整理滿滿戰利品)", durationMinutes: 720, customNotes: "步行或行車 10 分鐘回飯店，大包小包放房內，深夜續攤屋台拉麵。" }
+        ]
+      },
+      {
+        day: 5,
+        date: "2026/02/28",
+        dayOfWeek: "星期六",
+        title: "福岡 LaLaport 實物大鋼彈聲光秀 ➔ JR博多城免稅伴手禮 ➔ 福岡機場 (FUK) 返台",
+        departureTime: "09:30",
+        warningNotes: "LaLaport 看 24.8 米 v-Gundam 鋼彈聲光秀，Gundam Park 買齊限定版模型！",
+        items: [
+          { spotId: "fukuoka-hotel-hakata", nameZh: "出發：退房出發", durationMinutes: 15, customNotes: "09:30 退房行李隨車，前往福岡朝聖最新巨型商場。" },
+          { spotId: "lalaport-fukuoka", nameZh: "福岡 LaLaport (24.8米實物大鋼彈聲光秀・Gundam Park)", durationMinutes: 150, customNotes: "行車 20 分鐘 (8km)。近距離打卡福岡限定實物大 v-Gundam 鋼彈聲光變形，逛 Gundam Park 搶限定模型。" },
+          { spotId: "hakata-station", nameZh: "JR 博多城 (最後免稅補貨・拉麵狂歡)", durationMinutes: 75, customNotes: "行車 15 分鐘 (4km)。AMU PLAZA 做最後免稅掃貨，吃博多一雙或名店拉麵午餐。" },
+          { spotId: "fuk-airport", nameZh: "福岡機場 (FUK) 採買免稅名產順利返台", durationMinutes: 120, customNotes: "行車 12 分鐘 (4km) 抵達機場，免稅店爆買伴手禮，搭機滿載而歸平安返台。" }
         ]
       }
     ]
@@ -3969,12 +4021,26 @@ const KYUSHU_CORRIDORS = {
   "ureshino-onsen:tosu-outlets": { distKm: 58, mins: 50, highway: "長崎自動車道接鳥栖JCT", roadType: "highway" },
   "aso-kusasenri:aso-shrine": { distKm: 16, mins: 25, highway: "阿蘇登山道路坊中線", roadType: "mountain" },
   "aso-shrine:takachiho-gorge": { distKm: 48, mins: 65, highway: "國道265轉325號", roadType: "mountain" },
+  "fuk-airport:maizuru-park": { distKm: 8, mins: 22, highway: "福岡都市高速/明治通", roadType: "urban" },
+  "maizuru-park:canal-city-hakata": { distKm: 3.5, mins: 12, highway: "國壽通/國道202號", roadType: "urban" },
+  "dazaifu-tenmangu:yanagawa-tachibana-ohana": { distKm: 55, mins: 50, highway: "九州自動車道接國道443", roadType: "highway" },
+  "hakata-station:fuk-airport": { distKm: 4, mins: 12, highway: "空港通快速直達", roadType: "urban" },
+  "dazaifu-tenmangu:yufuin-kinrin-lake": { distKm: 110, mins: 85, highway: "九州道接大分自動車道", roadType: "highway" },
+  "karato-market:tosu-outlets": { distKm: 105, mins: 80, highway: "關門隧道接九州自動車道", roadType: "highway" },
+  "tosu-outlets:tenjin-underground": { distKm: 35, mins: 38, highway: "九州道接福岡都市高速", roadType: "highway" },
+  "lalaport-fukuoka:hakata-station": { distKm: 4, mins: 15, highway: "竹下通/筑紫通", roadType: "urban" },
+  "fukuoka-hotel-hakata:karato-market": { distKm: 82, mins: 80, highway: "九州道接關門隧道", roadType: "highway" },
+  "tosu-outlets:fukuoka-hotel-hakata": { distKm: 34, mins: 36, highway: "九州自動車道北上福岡", roadType: "highway" },
+  "beppu-ropeway:mojiko-retro": { distKm: 98, mins: 78, highway: "東九州自動車道北上", roadType: "highway" }
 };
+
+const PRESET_ITINERARIES = ITINERARY_PRESETS;
 
 if (typeof window !== 'undefined') {
   window.KYUSHU_METADATA = KYUSHU_METADATA;
   window.KYUSHU_SPOTS = KYUSHU_SPOTS;
   window.ITINERARY_PRESETS = ITINERARY_PRESETS;
+  window.PRESET_ITINERARIES = PRESET_ITINERARIES;
   window.KYUSHU_CORRIDORS = KYUSHU_CORRIDORS;
 }
 
@@ -3983,6 +4049,7 @@ if (typeof module !== 'undefined' && module.exports) {
     KYUSHU_METADATA,
     KYUSHU_SPOTS,
     ITINERARY_PRESETS,
+    PRESET_ITINERARIES,
     KYUSHU_CORRIDORS
   };
 }
@@ -3995,9 +4062,9 @@ if (typeof module !== 'undefined' && module.exports) {
  * 深度整合《九州五日行程深度評估報告》：
  * - 方案 A（原 DM 5日福岡進出拉車版・Day 2 7.5~8h 警示與降級策略）
  * - 方案 B（極致推薦：福岡進/熊本出 雙點進出 5日順暢自駕版）
- * - 方案 C（中九州舒活精華 熊本進/熊本出版）
- * - 熟齡長輩 3 日悠閒慢遊版
- * - 年輕潮流美拍 4 日極速版
+ * - 方案 C（中九州舒活精華 熊本進/熊本出 5日版）
+ * - 40~60歲 熟齡舒活・名湯祈福 5 天 4 夜慢遊全覽
+ * - 25~35歲 潮流美拍・巨城名物 5 天 4 夜極速全覽
  * 
  * 核心引擎：
  * 1. 九州真實路網速域模型（高速/大分道/山路繞行係數）與行車時間精算
