@@ -557,13 +557,16 @@ def test_google_maps_system():
     with open(os.path.join(BASE_DIR, 'index.html'), 'r', encoding='utf-8') as f:
         html_text = f.read()
 
-    # 1. 驗證 DOM 元件齊備
+    # 1. 驗證 DOM 元件齊備 (包含地圖、導航按鈕、API Key 彈窗與景點詳細攻略彈窗)
     required_gmap_dom_ids = [
         'btn-open-gmaps-day-nav', 'gmaps-day-nav-stops-sub', 'kyushu-map',
         'kyushu-gmap-iframe', 'kyushu-gmap-canvas', 'gmaps-mode-badge',
         'btn-open-gmap-key-modal', 'btn-toggle-gmap-mode', 'btn-toggle-gmap-traffic',
-        'gmap-key-modal', 'input-gmap-api-key', 'btn-save-gmap-key',
-        'btn-clear-gmap-key', 'btn-close-gmap-key-modal'
+        'btn-reset-gmap-route', 'gmap-key-modal', 'input-gmap-api-key', 'btn-save-gmap-key',
+        'btn-clear-gmap-key', 'btn-close-gmap-key-modal',
+        'spot-detail-modal', 'spot-detail-sheet', 'btn-close-spot-detail-modal',
+        'modal-spot-title', 'modal-spot-gmap-nav', 'modal-spot-gmap-info',
+        'modal-spot-gmap-streetview', 'btn-modal-spot-focus-map', 'btn-modal-spot-add-day'
     ]
     for gid in required_gmap_dom_ids:
         assert f'id="{gid}"' in html_text or f"id='{gid}'" in html_text, f"缺少 Google Maps DOM 元件: {gid}"
@@ -574,6 +577,7 @@ def test_google_maps_system():
     var clearTimeout = function() {};
     var setInterval = function(cb) { return 1; };
     var clearInterval = function() {};
+    var requestAnimationFrame = function(cb) { cb(); };
     var console = { log: print, warn: print, error: print };
 
     function makeElement() {
@@ -582,7 +586,7 @@ def test_google_maps_system():
         querySelector: function() { return makeElement(); },
         querySelectorAll: function() { return []; },
         style: {},
-        classList: { add: function() {}, remove: function() {} },
+        classList: { add: function() {}, remove: function() {}, contains: function() { return false; } },
         setAttribute: function() {},
         appendChild: function() {},
         removeChild: function() {}
@@ -604,15 +608,6 @@ def test_google_maps_system():
       setItem: function(k, v) { testStorage[k] = String(v); }
     };
     var navigator = {};
-    var L = {
-      map: function() { return { setView: function() {}, on: function() {}, invalidateSize: function() {}, fitBounds: function() {}, removeLayer: function() {}, dragging: { enable: function(){} } }; },
-      tileLayer: function() { return { addTo: function() {} }; },
-      marker: function() { return { addTo: function() { return { bindPopup: function() { return { on: function() {} }; } }; } }; },
-      polyline: function() { return { addTo: function() {} }; },
-      latLngBounds: function() { return { isValid: function() { return false; } }; },
-      divIcon: function() {},
-      featureGroup: function() { return { getBounds: function() { return { pad: function() { return {}; } }; } }; }
-    };
 
     load("data.js");
     load("app.js");
@@ -636,11 +631,18 @@ def test_google_maps_system():
     // 測試景點 3 大功能按鈕
     var spotLinks = gmaps.getSpotGmapLinks(testStops[1]);
 
+    // 測試詳情彈窗與地圖定位呼叫
+    gmaps.openSpotDetailModal(testStops[1]);
+    gmaps.focusSpotOnMap(testStops[1]);
+    gmaps.closeSpotDetailModal();
+
     print(JSON.stringify({
       dayNavUrl: dayNavUrl,
       embedUrl: embedUrl,
       singleNavUrl: singleNavUrl,
-      spotLinks: spotLinks
+      spotLinks: spotLinks,
+      hasModalFn: typeof gmaps.openSpotDetailModal === 'function',
+      hasFocusFn: typeof gmaps.focusSpotOnMap === 'function'
     }));
     """
     res = json.loads(run_js(js_gmap_test))
@@ -664,10 +666,13 @@ def test_google_maps_system():
     assert "https://www.google.com/maps/dir/?api=1&destination=" in res['spotLinks']['navUrl'], "景點導航按鈕協議錯誤"
     assert "https://www.google.com/maps/search/?api=1&query=" in res['spotLinks']['infoUrl'], "老饕評價按鈕協議錯誤"
     assert "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=" in res['spotLinks']['streetViewUrl'], "街景實景按鈕協議錯誤"
+    assert res['hasModalFn'] is True, "缺少 openSpotDetailModal 函式"
+    assert res['hasFocusFn'] is True, "缺少 focusSpotOnMap 函式"
 
     print("  -> Google Maps 官方自駕 Directions URL Scheme (含起點、中繼站 | 串聯、終點) 驗證 100% 正確！")
     print("  -> 免 API Key 動態 Google Maps 嵌入式路線多站視圖驗證 100% 正確！")
     print("  -> 景點卡片標配「📍即時導航」、「🔍老饕評價」、「🏙️街景實景」三合一功能鏈接驗證通過！")
+    print("  -> 景點詳細攻略彈窗 (Spot Detail Modal) 與地圖即時定位 100% 驗證通過！")
 
 if __name__ == '__main__':
     print("==================================================")

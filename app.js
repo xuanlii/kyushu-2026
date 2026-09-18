@@ -1240,6 +1240,8 @@ document.addEventListener('DOMContentLoaded', () => {
               </div>
             </div>
             <div class="spot-actions">
+              <button type="button" class="btn btn-outline btn-icon btn-sm btn-spot-locate" data-idx="${idx}" title="在地圖上定位此景點" aria-label="在地圖上定位">📍</button>
+              <button type="button" class="btn btn-outline btn-icon btn-sm btn-spot-detail" data-idx="${idx}" title="查看景點詳細攻略與雙世代指南" aria-label="查看攻略詳情">🔍</button>
               <button type="button" class="btn btn-outline btn-icon btn-sm btn-move-up" data-idx="${idx}" title="上移此地點" aria-label="上移此地點">⬆️</button>
               <button type="button" class="btn btn-outline btn-icon btn-sm btn-move-down" data-idx="${idx}" title="下移此地點" aria-label="下移此地點">⬇️</button>
               <button type="button" class="btn btn-outline btn-icon btn-sm btn-remove-spot" data-idx="${idx}" title="移除此地點" aria-label="移除此地點" style="color:var(--color-danger);">✕</button>
@@ -1408,6 +1410,32 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
+    // 景點詳情彈窗與地圖定位綁定
+    container.querySelectorAll('.btn-spot-detail').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const idx = Number(btn.dataset.idx);
+        if (currentDay.items[idx]) openSpotDetailModal(currentDay.items[idx]);
+      });
+    });
+
+    container.querySelectorAll('.spot-main-info').forEach(el => {
+      el.style.cursor = 'pointer';
+      el.addEventListener('click', () => {
+        const card = el.closest('.spot-card');
+        const idx = Number(card ? card.dataset.spotIndex : -1);
+        if (idx >= 0 && currentDay.items[idx]) openSpotDetailModal(currentDay.items[idx]);
+      });
+    });
+
+    container.querySelectorAll('.btn-spot-locate').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const idx = Number(btn.dataset.idx);
+        if (currentDay.items[idx]) focusSpotOnMap(currentDay.items[idx]);
+      });
+    });
+
     // 上移 / 下移
     container.querySelectorAll('.btn-move-up').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1546,6 +1574,137 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  /* ==========================================================================
+     景點詳細攻略與雙世代指南彈窗 (Spot Detail Modal & Map Focus)
+     ========================================================================== */
+  let currentDetailSpot = null;
+
+  function openSpotDetailModal(itemOrSpotId) {
+    const modal = document.getElementById('spot-detail-modal');
+    if (!modal) return;
+
+    let spot = null;
+    if (typeof itemOrSpotId === 'string') {
+      spot = getSpotById(itemOrSpotId) || STATE.customSpots.find(s => s.id === itemOrSpotId);
+    } else if (itemOrSpotId) {
+      spot = itemOrSpotId.spotData || getSpotById(itemOrSpotId.spotId || itemOrSpotId.id) || itemOrSpotId;
+    }
+    if (!spot) return;
+
+    currentDetailSpot = spot;
+
+    const titleEl = document.getElementById('modal-spot-title');
+    const cityEl = document.getElementById('modal-spot-city');
+    const stayEl = document.getElementById('modal-spot-stay');
+    const subtitleEl = document.getElementById('modal-spot-subtitle');
+    const descEl = document.getElementById('modal-spot-desc');
+    const elderEl = document.getElementById('modal-spot-elder');
+    const youthEl = document.getElementById('modal-spot-youth');
+    const infantEl = document.getElementById('modal-spot-infant');
+
+    if (titleEl) titleEl.textContent = spot.nameZh || '景點詳情';
+    if (cityEl) cityEl.textContent = spot.city || '九州';
+    if (stayEl) stayEl.textContent = `建議停留 ${formatDuration(spot.defaultStayMins || spot.durationMinutes || 60)}`;
+    if (subtitleEl) subtitleEl.textContent = `${spot.nameJa || ''} · ${spot.category || '自駕精選'}`;
+    if (descEl) descEl.textContent = spot.desc || '暫無額外備註說明。';
+
+    const elder = spot.elderFit || {};
+    if (elderEl) {
+      elderEl.innerHTML = `
+        <div><strong>步數負荷：</strong>${escapeHtml(elder.steps || '平緩舒適')}</div>
+        <div><strong>地形坡度：</strong>${escapeHtml(elder.slope || '無特殊陡坡')}</div>
+        <div><strong>餐飲配套：</strong>${escapeHtml(elder.dining || '日式清淡定食')}</div>
+        ${elder.notes ? `<div style="margin-top:0.25rem; font-weight:600;">💡 提醒：${escapeHtml(elder.notes)}</div>` : ''}
+      `;
+    }
+
+    const youth = spot.youthFit || {};
+    if (youthEl) {
+      youthEl.innerHTML = `
+        <div><strong>拍照機位：</strong>${escapeHtml(youth.photoSpot || '社群熱門打卡機位')}</div>
+        <div><strong>必吃美食：</strong>${escapeHtml(youth.food || '排隊在地推薦名物')}</div>
+        <div><strong>紀念選品：</strong>${escapeHtml(youth.shopping || '特色伴手禮與選物')}</div>
+      `;
+    }
+
+    const infant = spot.infantFit || {};
+    if (infantEl) {
+      infantEl.innerHTML = `
+        <div><strong>嬰兒推車：</strong>${escapeHtml(infant.stroller || '推車與背巾皆宜')}</div>
+        <div><strong>哺乳設施：</strong>${escapeHtml(infant.nursingRoom || '備有無障礙洗手間')}</div>
+        ${infant.notes ? `<div style="margin-top:0.25rem; font-weight:600;">🍼 照護：${escapeHtml(infant.notes)}</div>` : ''}
+      `;
+    }
+
+    // Google Maps 標配三合一操作列
+    const gLinks = getSpotGmapLinks(spot);
+    const navLink = document.getElementById('modal-spot-gmap-nav');
+    const infoLink = document.getElementById('modal-spot-gmap-info');
+    const streetLink = document.getElementById('modal-spot-gmap-streetview');
+    if (navLink) navLink.href = gLinks.navUrl;
+    if (infoLink) infoLink.href = gLinks.infoUrl;
+    if (streetLink) streetLink.href = gLinks.streetViewUrl;
+
+    modal.style.display = 'flex';
+    requestAnimationFrame(() => {
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+    });
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeSpotDetailModal() {
+    const modal = document.getElementById('spot-detail-modal');
+    if (!modal) return;
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    setTimeout(() => {
+      modal.style.display = 'none';
+      const pickerModal = document.getElementById('spot-picker-modal');
+      if (!pickerModal || !pickerModal.classList.contains('open')) {
+        document.body.style.overflow = '';
+      }
+    }, 200);
+  }
+
+  function focusSpotOnMap(spotOrItem) {
+    if (!spotOrItem) return;
+    const spotMeta = getSpotById(spotOrItem.spotId || spotOrItem.id) || spotOrItem.spotData || spotOrItem;
+    const lat = typeof spotOrItem.lat === 'number' ? spotOrItem.lat : spotMeta.lat;
+    const lng = typeof spotOrItem.lng === 'number' ? spotOrItem.lng : spotMeta.lng;
+    if (typeof lat !== 'number' || typeof lng !== 'number' || isNaN(lat) || isNaN(lng)) return;
+
+    const nameZh = spotOrItem.nameZh || spotMeta.nameZh || '景點';
+
+    // 滾動至地圖區域
+    const mapCard = document.getElementById('kyushu-map-card') || document.getElementById('kyushu-map');
+    if (mapCard && typeof mapCard.scrollIntoView === 'function') {
+      mapCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    const resetBtn = document.getElementById('btn-reset-gmap-route');
+    if (resetBtn) resetBtn.style.display = 'inline-block';
+
+    if (STATE.gmapMode === 'js' && STATE.googleMap && typeof google !== 'undefined' && google.maps) {
+      STATE.googleMap.setCenter({ lat, lng });
+      STATE.googleMap.setZoom(15);
+      const targetMarker = STATE.googleMarkers.find(m => {
+        const pos = m.getPosition();
+        return pos && Math.abs(pos.lat() - lat) < 0.0001 && Math.abs(pos.lng() - lng) < 0.0001;
+      });
+      if (targetMarker && targetMarker.__infoWindow) {
+        targetMarker.__infoWindow.open(STATE.googleMap, targetMarker);
+      }
+    } else {
+      const iframe = document.getElementById('kyushu-gmap-iframe');
+      if (iframe) {
+        iframe.src = `https://maps.google.com/maps?q=${lat},${lng}+(${encodeURIComponent(nameZh)})&z=15&hl=zh-TW&output=embed`;
+      }
+    }
+
+    showToast(`📍 已在地圖定位：${nameZh}`);
+  }
+
   function openSpotPickerModal() {
     let modal = document.getElementById('spot-picker-modal');
     if (!modal) {
@@ -1664,16 +1823,27 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    listContainer.innerHTML = filtered.map(spot => `
-      <div class="picker-item-card">
-        <div class="picker-item-info">
-          <div class="picker-item-title">${escapeHtml(spot.nameZh)}</div>
-          <div class="picker-item-desc">${escapeHtml(spot.city || '')}・建議停留 ${formatDuration(spot.defaultStayMins || 60)}</div>
-          <div style="font-size:0.75rem; color:var(--color-slate-500); margin-top:0.2rem;">${escapeHtml(spot.desc || '')}</div>
+    listContainer.innerHTML = filtered.map(spot => {
+      const gLinks = getSpotGmapLinks(spot);
+      return `
+        <div class="picker-item-card">
+          <div class="picker-item-info">
+            <div class="picker-item-title" style="cursor:pointer;" data-spot-id="${spot.id}">${escapeHtml(spot.nameZh)}</div>
+            <div class="picker-item-desc">${escapeHtml(spot.city || '')}・建議停留 ${formatDuration(spot.defaultStayMins || 60)}</div>
+            <div style="font-size:0.75rem; color:var(--color-slate-500); margin-top:0.2rem;">${escapeHtml(spot.desc || '')}</div>
+            <div class="spot-gmap-actions-bar" style="border-top:none; padding-top:0.35rem; margin-top:0.35rem; gap:0.35rem;">
+              <a href="${gLinks.navUrl}" target="_blank" rel="noopener" class="btn-gmap-action btn-gmap-nav" style="padding:0.25rem 0.5rem; font-size:0.7rem;" title="Google Maps 即時導航">📍 導航</a>
+              <a href="${gLinks.infoUrl}" target="_blank" rel="noopener" class="btn-gmap-action btn-gmap-info" style="padding:0.25rem 0.5rem; font-size:0.7rem;" title="查看評價與資訊">🔍 評價</a>
+              <a href="${gLinks.streetViewUrl}" target="_blank" rel="noopener" class="btn-gmap-action btn-gmap-streetview" style="padding:0.25rem 0.5rem; font-size:0.7rem;" title="街景實景 360° 預覽">🏙️ 街景</a>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:0.4rem; align-items:flex-end; flex-shrink:0;">
+            <button class="btn btn-primary btn-sm btn-add-spot-to-day" data-spot-id="${spot.id}">+ 加入</button>
+            <button type="button" class="btn btn-outline btn-xs btn-view-spot-detail" data-spot-id="${spot.id}">🔍 詳情</button>
+          </div>
         </div>
-        <button class="btn btn-primary btn-sm btn-add-spot-to-day" data-spot-id="${spot.id}">+ 加入</button>
-      </div>
-    `).join('');
+      `;
+    }).join('');
 
     listContainer.querySelectorAll('.btn-add-spot-to-day').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1698,6 +1868,19 @@ document.addEventListener('DOMContentLoaded', () => {
         saveCurrentItinerary();
         closeSpotPickerModal();
         showToast(`已成功加入：${targetSpot.nameZh}`);
+      });
+    });
+
+    listContainer.querySelectorAll('.btn-view-spot-detail').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openSpotDetailModal(btn.dataset.spotId);
+      });
+    });
+
+    listContainer.querySelectorAll('.picker-item-title').forEach(el => {
+      el.addEventListener('click', () => {
+        openSpotDetailModal(el.dataset.spotId);
       });
     });
   }
@@ -2168,6 +2351,64 @@ document.addEventListener('DOMContentLoaded', () => {
       window.addEventListener('resize', syncMapGestureState);
     }
 
+    // 返回全日自駕路線按鈕
+    const resetRouteBtn = document.getElementById('btn-reset-gmap-route');
+    if (resetRouteBtn) {
+      resetRouteBtn.addEventListener('click', () => {
+        updateMap();
+        resetRouteBtn.style.display = 'none';
+        showToast('已恢復當日完整自駕路線');
+      });
+    }
+
+    // 景點詳情彈窗監聽
+    const detailModal = document.getElementById('spot-detail-modal');
+    const closeDetailBtn = document.getElementById('btn-close-spot-detail-modal');
+    if (closeDetailBtn) closeDetailBtn.addEventListener('click', closeSpotDetailModal);
+    if (detailModal) {
+      detailModal.addEventListener('click', (e) => {
+        if (e.target === detailModal) closeSpotDetailModal();
+      });
+      attachBottomSheetGestures(detailModal, closeSpotDetailModal);
+    }
+
+    const modalFocusBtn = document.getElementById('btn-modal-spot-focus-map');
+    if (modalFocusBtn) {
+      modalFocusBtn.addEventListener('click', () => {
+        if (currentDetailSpot) {
+          focusSpotOnMap(currentDetailSpot);
+          closeSpotDetailModal();
+        }
+      });
+    }
+
+    const modalAddBtn = document.getElementById('btn-modal-spot-add-day');
+    if (modalAddBtn) {
+      modalAddBtn.addEventListener('click', () => {
+        if (currentDetailSpot) {
+          const currentDay = STATE.itineraryDays[STATE.activeDayIndex];
+          if (currentDay) {
+            currentDay.items.push({
+              spotId: currentDetailSpot.id,
+              id: currentDetailSpot.id,
+              nameZh: currentDetailSpot.nameZh,
+              lat: currentDetailSpot.lat,
+              lng: currentDetailSpot.lng,
+              durationMinutes: currentDetailSpot.defaultStayMins || 60,
+              customNotes: currentDetailSpot.desc || ''
+            });
+            recalculateItineraryTimeline(STATE.itineraryDays);
+            renderDayTimeline();
+            updateMap();
+            saveCurrentItinerary();
+            closeSpotDetailModal();
+            closeSpotPickerModal();
+            showToast(`已成功加入：${currentDetailSpot.nameZh}`);
+          }
+        }
+      });
+    }
+
     // 嘗試初始化 Google Maps JS SDK (若有儲存金鑰)
     if (STATE.gmapApiKey && STATE.gmapMode === 'js') {
       loadGoogleMapsJsApi(STATE.gmapApiKey);
@@ -2349,17 +2590,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (trafficBtn) trafficBtn.style.display = 'none';
     }
 
-    // 3. Leaflet 優雅相容處理 (若存在實例)
-    if (STATE.leafletMap && typeof L !== 'undefined') {
-      try {
-        STATE.mapMarkers.forEach(m => STATE.leafletMap.removeLayer(m));
-        STATE.mapMarkers = [];
-        if (STATE.mapPolyline) {
-          STATE.leafletMap.removeLayer(STATE.mapPolyline);
-          STATE.mapPolyline = null;
-        }
-      } catch (e) {}
-    }
+    const resetBtn = document.getElementById('btn-reset-gmap-route');
+    if (resetBtn) resetBtn.style.display = 'none';
   }
 
   function renderGoogleMapsJsRoute(validStops) {
@@ -2418,6 +2650,7 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
 
       const infoWindow = new google.maps.InfoWindow({ content: infoContent });
+      marker.__infoWindow = infoWindow;
       marker.addListener('click', () => {
         infoWindow.open(STATE.googleMap, marker);
       });
@@ -3062,6 +3295,9 @@ document.addEventListener('DOMContentLoaded', () => {
     buildGoogleMapsDayNavUrl,
     buildGoogleMapsEmbedUrl,
     getSpotGmapLinks,
+    openSpotDetailModal,
+    closeSpotDetailModal,
+    focusSpotOnMap,
     STATE
   };
 
