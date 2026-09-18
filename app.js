@@ -413,15 +413,31 @@ document.addEventListener('DOMContentLoaded', () => {
      5. 預設範本載入與快取持久化 (Preset Loading & State Persistence)
      ========================================================================== */
   function loadPreset(presetId, forceReset = false) {
-    const preset = (window.ITINERARY_PRESETS || []).find(p => p.id === presetId) || window.ITINERARY_PRESETS[1]; // 預設方案 B
+    const preset = (window.ITINERARY_PRESETS || []).find(p => p.id === presetId || (p.aliasIds && p.aliasIds.includes(presetId))) || window.ITINERARY_PRESETS[1]; // 預設方案 B
     STATE.currentPresetId = preset.id;
     safeStorageSet('kyushu_preset_id', preset.id);
 
-    // 檢查是否有儲存的使用者自訂行程
-    const savedCustom = safeStorageGet(`kyushu_custom_plan_${preset.id}`);
+    // 檢查是否有儲存的使用者自訂行程 (兼顧新舊 alias ID)
+    let savedCustom = safeStorageGet(`kyushu_custom_plan_${preset.id}`);
+    if (!savedCustom && preset.aliasIds) {
+      for (const aid of preset.aliasIds) {
+        const legacy = safeStorageGet(`kyushu_custom_plan_${aid}`);
+        if (legacy) {
+          savedCustom = legacy;
+          break;
+        }
+      }
+    }
+
     if (savedCustom && !forceReset) {
       try {
-        STATE.itineraryDays = JSON.parse(savedCustom);
+        const parsed = JSON.parse(savedCustom);
+        // 嚴格確保至少具備完整 5 天，避免載入舊版 2天/3天 快取
+        if (Array.isArray(parsed) && parsed.length >= 5) {
+          STATE.itineraryDays = parsed;
+        } else {
+          STATE.itineraryDays = JSON.parse(JSON.stringify(preset.days));
+        }
       } catch (e) {
         STATE.itineraryDays = JSON.parse(JSON.stringify(preset.days));
       }

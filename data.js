@@ -1456,6 +1456,7 @@ const ITINERARY_PRESETS = [
         departureTime: "09:00",
         warningNotes: "輕鬆平原路線，長輩極為喜愛。",
         items: [
+          { spotId: "kumamoto-hotel-city", nameZh: "出發：熊本市區飯店", durationMinutes: 15, customNotes: "09:00 晨起出發，前往市區名勝水前寺成趣園。" },
           { spotId: "suizenji-garden", nameZh: "水前寺成趣園 (富士山庭園散步)", durationMinutes: 75, customNotes: "漫步餵錦鯉，茶室品抹茶。" },
           { spotId: "yanagawa-tachibana-ohana", nameZh: "柳川立花邸 御花 & 蒸籠鰻魚飯", durationMinutes: 105, customNotes: "行車 1 小時 15 分 (72km)。名勝庭園巡禮與百年老鋪鰻魚飯大餐。" },
           { spotId: "kumamoto-hotel-city", nameZh: "返回：熊本市區放鬆", durationMinutes: 720, customNotes: "午後返熊本，媽媽可逛百貨，長輩在飯店充分午睡。" }
@@ -1469,6 +1470,7 @@ const ITINERARY_PRESETS = [
         departureTime: "09:00",
         warningNotes: "山區路段風大，為長輩與寶寶備齊保暖衣物。",
         items: [
+          { spotId: "kumamoto-hotel-city", nameZh: "出發：熊本市區出發前往阿蘇", durationMinutes: 15, customNotes: "09:00 辦理退房，出發前往阿蘇火山國家公園。" },
           { spotId: "aso-kusasenri", nameZh: "阿蘇草千里ヶ浜 & 火山博物館", durationMinutes: 105, customNotes: "行車 1 小時 15 分 (50km)。大自然壯闊美景，享用溫熱高菜飯。" },
           { spotId: "kurokawa-onsen", nameZh: "黑川溫泉街 (入湯手形溫泉巡禮)", durationMinutes: 720, customNotes: "行車 45 分鐘 (35km)。入住日本頂級秘湯溫泉旅館，徹底放鬆全身筋骨。" }
         ]
@@ -1481,6 +1483,7 @@ const ITINERARY_PRESETS = [
         departureTime: "09:30",
         warningNotes: "高千穗峽落差大，長輩在上方商場欣賞絕壁。",
         items: [
+          { spotId: "kurokawa-onsen", nameZh: "出發：黑川溫泉秘境旅館退房", durationMinutes: 15, customNotes: "09:30 晨湯後退房，前往宮崎高千穗峽。" },
           { spotId: "takachiho-gorge", nameZh: "宮崎高千穗峽 (真名井瀑布仙境)", durationMinutes: 105, customNotes: "行車 1 小時 20 分 (60km)。仙氣峽谷，長輩享用流水素麵，年輕人拍照打卡。" },
           { spotId: "takachiho-shrine", nameZh: "高千穗神社 (夫婦杉林蔭散步)", durationMinutes: 60, customNotes: "行車 10 分鐘。參拜千年古社祈求全家安康。" },
           { spotId: "minamiaso-onsen-hotel", nameZh: "夜宿：南阿蘇星空溫泉別墅", durationMinutes: 720, customNotes: "行車 45 分鐘 (38km)。欣賞阿蘇五岳夜空繁星。" }
@@ -1494,13 +1497,15 @@ const ITINERARY_PRESETS = [
         departureTime: "10:30",
         warningNotes: "南阿蘇到熊本機場僅 35 分鐘，行車極短無壓力。",
         items: [
-          { spotId: "kmj-airport", nameZh: "熊本機場 (KMJ) 買伴手禮返台", durationMinutes: 120, customNotes: "行車 35 分鐘 (25km) 直達機場。輕鬆辦理還車、退稅與登機。" }
+          { spotId: "minamiaso-onsen-hotel", nameZh: "出發：南阿蘇溫泉旅館退房", durationMinutes: 15, customNotes: "10:30 悠閒退房，行李隨車，沿景觀公路前往熊本機場。" },
+          { spotId: "kmj-airport", nameZh: "熊本機場 (KMJ) 買伴手禮返台 (搭機返國)", durationMinutes: 120, customNotes: "行車 35 分鐘 (25km) 直達機場。輕鬆辦理還車、退稅與登機。" }
         ]
       }
     ]
   },
   {
-    id: "preset-elder-3days",
+    id: "preset-elder-5days",
+    aliasIds: ["preset-elder-3days"],
     name: "40~60歲 熟齡舒活・名湯祈福 5 天 4 夜慢遊全覽 (🧓 低步數・名湯・平緩動線)",
     badge: "熟齡慢遊 5天4夜",
     badgeClass: "badge-success",
@@ -1580,7 +1585,8 @@ const ITINERARY_PRESETS = [
     ]
   },
   {
-    id: "preset-youth-4days",
+    id: "preset-youth-5days",
+    aliasIds: ["preset-youth-4days", "preset-youth-3days"],
     name: "25~35歲 潮流美拍・巨城名物 5 天 4 夜極速全覽 (📸 IG打卡・鋼彈・糸島・潮流購物)",
     badge: "潮流極速 5天4夜",
     badgeClass: "badge-primary",
@@ -1753,7 +1759,10 @@ const KYUSHU_CORRIDORS = {
   "lalaport-fukuoka:hakata-station": { distKm: 4, mins: 15, highway: "竹下通/筑紫通", roadType: "urban" },
   "fukuoka-hotel-hakata:karato-market": { distKm: 82, mins: 80, highway: "九州道接關門隧道", roadType: "highway" },
   "tosu-outlets:fukuoka-hotel-hakata": { distKm: 34, mins: 36, highway: "九州自動車道北上福岡", roadType: "highway" },
-  "beppu-ropeway:mojiko-retro": { distKm: 98, mins: 78, highway: "東九州自動車道北上", roadType: "highway" }
+  "beppu-ropeway:mojiko-retro": { distKm: 98, mins: 78, highway: "東九州自動車道北上", roadType: "highway" },
+  "yufuin-kinrin-lake:mojiko-retro": { distKm: 115, mins: 85, highway: "大分自動車道接東九州/九州道", roadType: "highway" },
+  "fukuoka-hotel-hakata:lalaport-fukuoka": { distKm: 7, mins: 18, highway: "竹下通/筑紫通", roadType: "urban" },
+  "kumamoto-hotel-city:aso-kusasenri": { distKm: 50, mins: 75, highway: "國道57號接阿蘇登山道", roadType: "mountain" }
 };
 
 const PRESET_ITINERARIES = ITINERARY_PRESETS;

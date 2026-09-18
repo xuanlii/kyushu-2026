@@ -169,6 +169,65 @@ def test_real_transit_calculation_engine():
     assert res['kmjToTakachihoMins'] < res['beppuToTakachihoMins'] * 0.65, "熊本機場至高千穗車程應比別府節省 40% 以上"
     print(f"  -> 改飛熊本順路性驗證通過：熊本機場至高千穗僅 {res['kmjToTakachihoMins']} 分鐘 ({res['kmjToTakachihoKm']} km)，對比別府出發 {res['beppuToTakachihoMins']} 分鐘 ({res['beppuToTakachihoKm']} km)，大幅節省 50% 車程！")
 
+    # 3. 測試 5 大範本全部 25 個天數之景點鏈接與行車計算完全無 NaN/異常
+    js_all_presets = """
+    load("data.js");
+    function calcDistanceKm(lat1, lon1, lat2, lon2) {
+      var R = 6371;
+      var dLat = (lat2 - lat1) * Math.PI / 180;
+      var dLon = (lon2 - lon1) * Math.PI / 180;
+      var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+    function calculateTransit(fromSpot, toSpot) {
+      if (!fromSpot || !toSpot) return { distanceKm: 0, durationMins: 0, text: '無座標' };
+      var fromId = fromSpot.spotId || fromSpot.id || '';
+      var toId = toSpot.spotId || toSpot.id || '';
+      var fromLat = typeof fromSpot.lat === 'number' ? fromSpot.lat : 0;
+      var fromLng = typeof fromSpot.lng === 'number' ? fromSpot.lng : 0;
+      var toLat = typeof toSpot.lat === 'number' ? toSpot.lat : 0;
+      var toLng = typeof toSpot.lng === 'number' ? toSpot.lng : 0;
+      var straightDist = calcDistanceKm(fromLat, fromLng, toLat, toLng);
+      var key1 = fromId + ':' + toId;
+      var key2 = toId + ':' + fromId;
+      if (fromId && toId && KYUSHU_CORRIDORS && (KYUSHU_CORRIDORS[key1] || KYUSHU_CORRIDORS[key2])) {
+        var m = KYUSHU_CORRIDORS[key1] || KYUSHU_CORRIDORS[key2];
+        return { distanceKm: m.distKm, durationMins: m.mins, highway: m.highway };
+      }
+      return { distanceKm: Math.round(straightDist * 1.35), durationMins: 30 };
+    }
+    var errors = [];
+    ITINERARY_PRESETS.forEach(function(p) {
+      p.days.forEach(function(d) {
+        if (!d.items || d.items.length < 2) {
+          errors.push(p.id + ' Day ' + d.day + ' 景點節點不足');
+        }
+        for (var i = 1; i < d.items.length; i++) {
+          var p0 = d.items[i-1];
+          var p1 = d.items[i];
+          var s0 = KYUSHU_SPOTS.find(function(s){ return s.id === p0.spotId; });
+          var s1 = KYUSHU_SPOTS.find(function(s){ return s.id === p1.spotId; });
+          if (!s0) errors.push(p.id + ' D' + d.day + ' 找不到景點: ' + p0.spotId);
+          if (!s1) errors.push(p.id + ' D' + d.day + ' 找不到景點: ' + p1.spotId);
+          p0.lat = s0 ? s0.lat : 0;
+          p0.lng = s0 ? s0.lng : 0;
+          p1.lat = s1 ? s1.lat : 0;
+          p1.lng = s1 ? s1.lng : 0;
+          var t = calculateTransit(p0, p1);
+          if (isNaN(t.distanceKm) || isNaN(t.durationMins) || t.durationMins < 0) {
+            errors.push(p.id + ' D' + d.day + ' 車程計算異常: ' + p0.spotId + ' -> ' + p1.spotId);
+          }
+        }
+      });
+    });
+    print(JSON.stringify(errors));
+    """
+    preset_errs = json.loads(run_js(js_all_presets))
+    assert len(preset_errs) == 0, f"5 大範本行車路網校準異常: {preset_errs}"
+    print("  -> 5 大範本全 25 天行車路網與景點鏈接 100% 驗證通過，零 NaN、零孤立點！")
+
 def test_custom_spot_and_ripple_timeline():
     print("[TEST] 4. 驗證自訂景點（別府私房旅館）經緯度錨定與時間漣漪推算...")
     js_test = """
