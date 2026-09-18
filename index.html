@@ -2,7 +2,12 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a" id="meta-theme-color">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="2026九州自由行">
+  <meta name="format-detection" content="telephone=no">
   <title>2026 九州跨世代自由行規劃工作室 & 深度行車評估 | Kyushu Road Trip Planner</title>
   <meta name="description" content="專為 2026 九州跨世代自由行設計之純前端規劃工作室。深度整合《九州五日行程深度評估報告》，包含車程自動計算、雙世代需求適配（40~60歲長輩 vs 25~35歲年輕人）與 10 個月嬰兒貼心護理。">
 
@@ -123,16 +128,26 @@
       </div>
 
       <!-- 右欄：側邊地圖與自駕提醒面板 -->
-      <aside class="planner-sidebar">
+      <aside class="planner-sidebar" id="kyushu-map-card">
         <!-- 路線地圖卡片 -->
         <div class="sidebar-card">
           <div class="sidebar-card-title">
             <span>🗺️ 本日自駕路網軌跡</span>
             <span style="font-size:0.75rem; color:var(--color-slate-500); font-weight:normal;">Leaflet 即時聯動</span>
           </div>
-          <div id="kyushu-map"></div>
+          <div class="map-wrapper" style="position:relative;">
+            <div id="kyushu-map"></div>
+            <!-- 手勢鎖定浮動切換器 (避免手機滑動頁面時卡住) -->
+            <div class="map-gesture-overlay" id="map-gesture-overlay">
+              <button type="button" class="btn-map-gesture-toggle" id="btn-map-gesture-toggle" aria-label="切換地圖互動模式">
+                <span class="gesture-icon">🔒</span>
+                <span class="gesture-text">地圖已鎖定（滑動不卡手）· 點擊啟用互動</span>
+              </button>
+            </div>
+          </div>
           <div class="map-tools-bar">
             <span>點擊地標可直接開啟 Google Maps 導航</span>
+            <button type="button" class="btn btn-outline btn-xs" id="btn-toggle-map-expand" style="margin-left:auto;">↕️ 放大/縮小地圖</button>
           </div>
         </div>
 
@@ -284,6 +299,26 @@
       </div>
     </div>
   </footer>
+
+  <!-- 行動端專屬底部常駐快速導航列 (Mobile Bottom Navigation Bar) -->
+  <nav class="mobile-bottom-nav" id="mobile-bottom-nav" aria-label="行動端快速導航列">
+    <button type="button" class="mobile-bottom-nav-btn active" id="btn-bottom-nav-planner" data-nav="planner">
+      <span class="mobile-bottom-icon">📅</span>
+      <span class="mobile-bottom-label">行程</span>
+    </button>
+    <button type="button" class="mobile-bottom-nav-btn" id="btn-bottom-nav-spots" data-nav="spots">
+      <span class="mobile-bottom-icon">📍</span>
+      <span class="mobile-bottom-label">景點庫</span>
+    </button>
+    <button type="button" class="mobile-bottom-nav-btn" id="btn-bottom-nav-map" data-nav="map">
+      <span class="mobile-bottom-icon">🗺️</span>
+      <span class="mobile-bottom-label">地圖</span>
+    </button>
+    <button type="button" class="mobile-bottom-nav-btn" id="btn-bottom-nav-care" data-nav="care">
+      <span class="mobile-bottom-icon">🛡️</span>
+      <span class="mobile-bottom-label">手冊/評估</span>
+    </button>
+  </nav>
 
   <!-- Leaflet JS (with graceful fallback) -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>

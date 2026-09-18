@@ -505,6 +505,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     container.innerHTML = html;
 
+    // 行動端流暢置中高亮選中天數 (Horizontal Scroll Centering)
+    const activeTab = container.querySelector('.day-tab-btn.active');
+    if (activeTab) {
+      setTimeout(() => {
+        activeTab.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      }, 50);
+    }
+
     container.querySelectorAll('.day-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         STATE.activeDayIndex = Number(btn.dataset.dayIndex);
@@ -744,9 +752,9 @@ document.addEventListener('DOMContentLoaded', () => {
               </div>
             </div>
             <div class="spot-actions">
-              <button class="btn btn-outline btn-icon btn-sm btn-move-up" data-idx="${idx}" title="上移">⬆️</button>
-              <button class="btn btn-outline btn-icon btn-sm btn-move-down" data-idx="${idx}" title="下移">⬇️</button>
-              <button class="btn btn-outline btn-icon btn-sm btn-remove-spot" data-idx="${idx}" title="移除此點" style="color:var(--color-danger);">✕</button>
+              <button type="button" class="btn btn-outline btn-icon btn-sm btn-move-up" data-idx="${idx}" title="上移此地點" aria-label="上移此地點">⬆️</button>
+              <button type="button" class="btn btn-outline btn-icon btn-sm btn-move-down" data-idx="${idx}" title="下移此地點" aria-label="下移此地點">⬇️</button>
+              <button type="button" class="btn btn-outline btn-icon btn-sm btn-remove-spot" data-idx="${idx}" title="移除此地點" aria-label="移除此地點" style="color:var(--color-danger);">✕</button>
             </div>
           </div>
 
@@ -755,12 +763,16 @@ document.addEventListener('DOMContentLoaded', () => {
               🕒 預計：<strong>${item.arriveTime || '--:--'}</strong> 抵達 ➔ <strong>${item.departTime || '--:--'}</strong> 出發
             </div>
             <div class="duration-control-wrap">
-              <label style="font-size:0.8rem; color:var(--color-slate-600);">停留時長：</label>
-              <select class="duration-select" data-idx="${idx}">
-                ${[15, 30, 45, 60, 75, 90, 105, 120, 150, 180, 240, 720].map(m => `
-                  <option value="${m}" ${item.durationMinutes === m ? 'selected' : ''}>${formatDuration(m)}</option>
-                `).join('')}
-              </select>
+              <label style="font-size:0.8rem; color:var(--color-slate-600); white-space:nowrap;">停留時長：</label>
+              <div class="duration-stepper-box">
+                <button type="button" class="btn-stepper btn-stepper-minus" data-idx="${idx}" title="減少15分鐘" aria-label="減少15分鐘">－</button>
+                <select class="duration-select" data-idx="${idx}" aria-label="停留時長選單">
+                  ${[15, 30, 45, 60, 75, 90, 105, 120, 150, 180, 240, 720].map(m => `
+                    <option value="${m}" ${item.durationMinutes === m ? 'selected' : ''}>${formatDuration(m)}</option>
+                  `).join('')}
+                </select>
+                <button type="button" class="btn-stepper btn-stepper-plus" data-idx="${idx}" title="增加15分鐘" aria-label="增加15分鐘">＋</button>
+              </div>
             </div>
           </div>
 
@@ -840,11 +852,52 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentDay = STATE.itineraryDays[STATE.activeDayIndex];
     if (!currentDay) return;
 
-    // 停留時間調節
+    // 停留時間調節（下拉選單）
     container.querySelectorAll('.duration-select').forEach(sel => {
       sel.addEventListener('change', (e) => {
         const idx = Number(sel.dataset.idx);
         currentDay.items[idx].durationMinutes = Number(e.target.value);
+        recalculateItineraryTimeline(STATE.itineraryDays);
+        renderDayTimeline();
+        saveCurrentItinerary();
+      });
+    });
+
+    // 停留時長微調器（- / + 快速步進）
+    const durationSteps = [15, 30, 45, 60, 75, 90, 105, 120, 150, 180, 240, 720];
+
+    container.querySelectorAll('.btn-stepper-minus').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const idx = Number(btn.dataset.idx);
+        const cur = Number(currentDay.items[idx].durationMinutes) || 60;
+        let next = cur - 15;
+        for (let i = durationSteps.length - 1; i >= 0; i--) {
+          if (durationSteps[i] < cur) {
+            next = durationSteps[i];
+            break;
+          }
+        }
+        currentDay.items[idx].durationMinutes = Math.max(15, next);
+        recalculateItineraryTimeline(STATE.itineraryDays);
+        renderDayTimeline();
+        saveCurrentItinerary();
+      });
+    });
+
+    container.querySelectorAll('.btn-stepper-plus').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const idx = Number(btn.dataset.idx);
+        const cur = Number(currentDay.items[idx].durationMinutes) || 60;
+        let next = cur + 15;
+        for (let i = 0; i < durationSteps.length; i++) {
+          if (durationSteps[i] > cur) {
+            next = durationSteps[i];
+            break;
+          }
+        }
+        currentDay.items[idx].durationMinutes = Math.min(720, next);
         recalculateItineraryTimeline(STATE.itineraryDays);
         renderDayTimeline();
         saveCurrentItinerary();
@@ -936,6 +989,47 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ==========================================================================
      8. 景點庫抽屜與私房地點自訂器 (Spot Picker & Custom Location Creator)
      ========================================================================== */
+  function attachBottomSheetGestures(overlay, closeFn) {
+    const content = overlay.querySelector('.modal-content');
+    const handleBar = overlay.querySelector('.bottom-sheet-handle-bar') || overlay.querySelector('.modal-header');
+    if (!content || !handleBar) return;
+
+    let startY = 0;
+    let currentY = 0;
+    let isSwiping = false;
+
+    handleBar.addEventListener('touchstart', (e) => {
+      if (window.innerWidth > 768) return;
+      startY = e.touches[0].clientY;
+      currentY = startY;
+      isSwiping = true;
+      content.style.transition = 'none';
+    }, { passive: true });
+
+    handleBar.addEventListener('touchmove', (e) => {
+      if (!isSwiping) return;
+      currentY = e.touches[0].clientY;
+      const diffY = currentY - startY;
+      if (diffY > 0) {
+        content.style.transform = `translateY(${diffY}px)`;
+      }
+    }, { passive: true });
+
+    const handleEnd = () => {
+      if (!isSwiping) return;
+      isSwiping = false;
+      content.style.transition = 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
+      const diffY = currentY - startY;
+      if (diffY > 80) {
+        closeFn();
+      }
+      content.style.transform = '';
+    };
+
+    handleBar.addEventListener('touchend', handleEnd, { passive: true });
+    handleBar.addEventListener('touchcancel', handleEnd, { passive: true });
+  }
+
   function openSpotPickerModal() {
     let modal = document.getElementById('spot-picker-modal');
     if (!modal) {
@@ -957,9 +1051,10 @@ document.addEventListener('DOMContentLoaded', () => {
     overlay.className = 'modal-overlay';
     overlay.innerHTML = `
       <div class="modal-content">
+        <div class="bottom-sheet-handle-bar"><div class="bottom-sheet-handle"></div></div>
         <div class="modal-header">
           <div class="modal-title">⛩️ 九州景點庫 & 私房地點加入</div>
-          <button class="modal-close-btn" id="btn-close-spot-modal">&times;</button>
+          <button class="modal-close-btn" id="btn-close-spot-modal" aria-label="關閉景點庫">&times;</button>
         </div>
         <div class="modal-body">
           <div class="modal-search-box">
@@ -986,6 +1081,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('btn-close-spot-modal').addEventListener('click', closeSpotPickerModal);
+    attachBottomSheetGestures(overlay, closeSpotPickerModal);
 
     const searchInput = document.getElementById('input-spot-search');
     if (searchInput) {
@@ -1130,9 +1226,10 @@ document.addEventListener('DOMContentLoaded', () => {
     overlay.className = 'modal-overlay';
     overlay.innerHTML = `
       <div class="modal-content" style="max-width: 640px;">
+        <div class="bottom-sheet-handle-bar"><div class="bottom-sheet-handle"></div></div>
         <div class="modal-header">
           <div class="modal-title">➕ 自訂私房景點 / 餐廳 / 溫泉住宿</div>
-          <button class="modal-close-btn" id="btn-close-custom-modal">&times;</button>
+          <button class="modal-close-btn" id="btn-close-custom-modal" aria-label="關閉自訂地點視窗">&times;</button>
         </div>
         <div class="modal-body" style="gap: 1.2rem;">
           <div>
@@ -1217,6 +1314,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('btn-close-custom-modal').addEventListener('click', closeCustomSpotCreatorModal);
     document.getElementById('btn-cancel-custom-spot').addEventListener('click', closeCustomSpotCreatorModal);
+    attachBottomSheetGestures(overlay, closeCustomSpotCreatorModal);
 
     const regionSelect = document.getElementById('custom-select-region');
     const latInput = document.getElementById('custom-input-lat');
@@ -1314,6 +1412,38 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ==========================================================================
      9. Leaflet 互動地圖視覺化 (Interactive Route Map)
      ========================================================================== */
+  let mapGestureLocked = (typeof window !== 'undefined' && window.innerWidth <= 768);
+
+  function syncMapGestureState() {
+    const btn = document.getElementById('btn-map-gesture-toggle');
+    if (!STATE.leafletMap) return;
+
+    if (window.innerWidth > 768) {
+      STATE.leafletMap.dragging.enable();
+      if (STATE.leafletMap.touchZoom) STATE.leafletMap.touchZoom.enable();
+      if (btn) btn.style.display = 'none';
+      return;
+    }
+
+    if (btn) btn.style.display = 'flex';
+
+    if (mapGestureLocked) {
+      STATE.leafletMap.dragging.disable();
+      if (STATE.leafletMap.touchZoom) STATE.leafletMap.touchZoom.disable();
+      if (btn) {
+        btn.classList.remove('unlocked');
+        btn.innerHTML = `<span class="gesture-icon">🔒</span><span class="gesture-text">地圖已鎖定（滑動不卡手）· 點擊啟用互動</span>`;
+      }
+    } else {
+      STATE.leafletMap.dragging.enable();
+      if (STATE.leafletMap.touchZoom) STATE.leafletMap.touchZoom.enable();
+      if (btn) {
+        btn.classList.add('unlocked');
+        btn.innerHTML = `<span class="gesture-icon">🔓</span><span class="gesture-text">地圖互動中 · 點擊鎖定（恢復順暢滑動）</span>`;
+      }
+    }
+  }
+
   function initLeafletMap() {
     const mapEl = document.getElementById('kyushu-map');
     if (!mapEl || typeof L === 'undefined') return;
@@ -1322,13 +1452,38 @@ document.addEventListener('DOMContentLoaded', () => {
       STATE.leafletMap = L.map('kyushu-map', {
         center: [33.2, 130.8],
         zoom: 8,
-        zoomControl: true
+        zoomControl: true,
+        scrollWheelZoom: false
       });
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: 18
       }).addTo(STATE.leafletMap);
+
+      const gestureBtn = document.getElementById('btn-map-gesture-toggle');
+      if (gestureBtn) {
+        gestureBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          mapGestureLocked = !mapGestureLocked;
+          syncMapGestureState();
+        });
+      }
+
+      const expandBtn = document.getElementById('btn-toggle-map-expand');
+      if (expandBtn) {
+        expandBtn.addEventListener('click', () => {
+          mapEl.classList.toggle('expanded');
+          const isExp = mapEl.classList.contains('expanded');
+          expandBtn.textContent = isExp ? '↕️ 縮小地圖' : '↕️ 放大/全景地圖';
+          setTimeout(() => {
+            if (STATE.leafletMap) STATE.leafletMap.invalidateSize();
+          }, 250);
+        });
+      }
+
+      syncMapGestureState();
+      window.addEventListener('resize', syncMapGestureState);
 
       updateMap();
     } catch (err) {
@@ -1927,6 +2082,74 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
     });
+
+    // 行動端專屬底部常駐快速導航列事件 (Mobile Bottom Navigation)
+    const bottomNavBtns = document.querySelectorAll('.mobile-bottom-nav-btn');
+    bottomNavBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        bottomNavBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const navTarget = btn.dataset.nav;
+
+        if (navTarget === 'planner') {
+          const el = document.getElementById('section-planner');
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+          document.querySelectorAll('.nav-tab-btn').forEach(b => {
+            b.classList.toggle('active', b.dataset.target === 'section-planner');
+          });
+        } else if (navTarget === 'spots') {
+          openSpotPickerModal();
+        } else if (navTarget === 'map') {
+          const mapCard = document.getElementById('kyushu-map-card') || document.getElementById('kyushu-map');
+          if (mapCard) {
+            mapCard.scrollIntoView({ behavior: 'smooth' });
+            setTimeout(() => {
+              if (STATE.leafletMap) STATE.leafletMap.invalidateSize();
+            }, 350);
+          }
+        } else if (navTarget === 'care') {
+          const el = document.getElementById('section-care') || document.getElementById('section-comparison');
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+          document.querySelectorAll('.nav-tab-btn').forEach(b => {
+            b.classList.toggle('active', b.dataset.target === 'section-care');
+          });
+        }
+      });
+    });
+
+    // 視窗滾動時同步更新行動端底部導航狀態
+    let scrollDebounce;
+    window.addEventListener('scroll', () => {
+      if (scrollDebounce) return;
+      scrollDebounce = setTimeout(() => {
+        scrollDebounce = null;
+        if (window.innerWidth > 768) return;
+
+        const careEl = document.getElementById('section-care');
+        const compEl = document.getElementById('section-comparison');
+        const mapEl = document.getElementById('kyushu-map-card');
+
+        const careTop = careEl ? careEl.getBoundingClientRect().top : 9999;
+        const compTop = compEl ? compEl.getBoundingClientRect().top : 9999;
+        const mapTop = mapEl ? mapEl.getBoundingClientRect().top : 9999;
+
+        let activeTarget = 'planner';
+        if (careTop < window.innerHeight * 0.4 || compTop < window.innerHeight * 0.4) {
+          activeTarget = 'care';
+        } else if (mapTop < window.innerHeight * 0.45 && mapTop > -300) {
+          activeTarget = 'map';
+        }
+
+        bottomNavBtns.forEach(b => {
+          if (b.dataset.nav === activeTarget) {
+            b.classList.add('active');
+          } else if (b.dataset.nav !== 'spots') {
+            b.classList.remove('active');
+          }
+        });
+      }, 100);
+    }, { passive: true });
 
     // 監聽原生列印事件
     window.addEventListener('beforeprint', () => {
