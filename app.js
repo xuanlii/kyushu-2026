@@ -991,43 +991,55 @@ document.addEventListener('DOMContentLoaded', () => {
      ========================================================================== */
   function attachBottomSheetGestures(overlay, closeFn) {
     const content = overlay.querySelector('.modal-content');
-    const handleBar = overlay.querySelector('.bottom-sheet-handle-bar') || overlay.querySelector('.modal-header');
-    if (!content || !handleBar) return;
+    const handleBar = overlay.querySelector('.bottom-sheet-handle-bar');
+    const header = overlay.querySelector('.modal-header');
+    if (!content) return;
 
     let startY = 0;
     let currentY = 0;
     let isSwiping = false;
 
-    handleBar.addEventListener('touchstart', (e) => {
+    const onStart = (e) => {
       if (window.innerWidth > 768) return;
       startY = e.touches[0].clientY;
       currentY = startY;
       isSwiping = true;
       content.style.transition = 'none';
-    }, { passive: true });
+    };
 
-    handleBar.addEventListener('touchmove', (e) => {
+    const onMove = (e) => {
       if (!isSwiping) return;
       currentY = e.touches[0].clientY;
       const diffY = currentY - startY;
       if (diffY > 0) {
         content.style.transform = `translateY(${diffY}px)`;
       }
-    }, { passive: true });
+    };
 
-    const handleEnd = () => {
+    const onEnd = () => {
       if (!isSwiping) return;
       isSwiping = false;
       content.style.transition = 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
       const diffY = currentY - startY;
-      if (diffY > 80) {
-        closeFn();
+      if (diffY > 70) {
+        content.style.transform = 'translateY(100%)';
+        setTimeout(() => {
+          closeFn();
+          content.style.transform = '';
+        }, 220);
+      } else {
+        content.style.transform = '';
       }
-      content.style.transform = '';
     };
 
-    handleBar.addEventListener('touchend', handleEnd, { passive: true });
-    handleBar.addEventListener('touchcancel', handleEnd, { passive: true });
+    [handleBar, header].forEach(el => {
+      if (el) {
+        el.addEventListener('touchstart', onStart, { passive: true });
+        el.addEventListener('touchmove', onMove, { passive: true });
+        el.addEventListener('touchend', onEnd, { passive: true });
+        el.addEventListener('touchcancel', onEnd, { passive: true });
+      }
+    });
   }
 
   function openSpotPickerModal() {
@@ -1038,11 +1050,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     renderSpotPickerList();
     modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
   }
 
   function closeSpotPickerModal() {
     const modal = document.getElementById('spot-picker-modal');
     if (modal) modal.classList.remove('open');
+    const customModal = document.getElementById('custom-spot-modal');
+    if (!customModal || !customModal.classList.contains('open')) {
+      document.body.style.overflow = '';
+    }
   }
 
   function createSpotPickerModal() {
@@ -1212,12 +1229,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
     if (nameInput) nameInput.focus();
   }
 
   function closeCustomSpotCreatorModal() {
     const modal = document.getElementById('custom-spot-modal');
     if (modal) modal.classList.remove('open');
+    const pickerModal = document.getElementById('spot-picker-modal');
+    if (!pickerModal || !pickerModal.classList.contains('open')) {
+      document.body.style.overflow = '';
+    }
   }
 
   function createCustomSpotCreatorModal() {
@@ -2075,6 +2097,7 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.nav-tab-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
+        btn.scrollIntoView({ inline: 'center', behavior: 'smooth', block: 'nearest' });
         const targetSectionId = btn.dataset.target;
         if (targetSectionId) {
           const el = document.getElementById(targetSectionId);
@@ -2096,7 +2119,9 @@ document.addEventListener('DOMContentLoaded', () => {
           const el = document.getElementById('section-planner');
           if (el) el.scrollIntoView({ behavior: 'smooth' });
           document.querySelectorAll('.nav-tab-btn').forEach(b => {
-            b.classList.toggle('active', b.dataset.target === 'section-planner');
+            const isMatch = (b.dataset.target === 'section-planner');
+            b.classList.toggle('active', isMatch);
+            if (isMatch) b.scrollIntoView({ inline: 'center', behavior: 'smooth', block: 'nearest' });
           });
         } else if (navTarget === 'spots') {
           openSpotPickerModal();
@@ -2109,10 +2134,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 350);
           }
         } else if (navTarget === 'care') {
-          const el = document.getElementById('section-care') || document.getElementById('section-comparison');
+          const el = document.getElementById('section-comparison') || document.getElementById('section-care');
           if (el) el.scrollIntoView({ behavior: 'smooth' });
           document.querySelectorAll('.nav-tab-btn').forEach(b => {
-            b.classList.toggle('active', b.dataset.target === 'section-care');
+            const isMatch = (b.dataset.target === 'section-comparison' || b.dataset.target === 'section-care');
+            b.classList.toggle('active', isMatch);
+            if (isMatch) b.scrollIntoView({ inline: 'center', behavior: 'smooth', block: 'nearest' });
           });
         }
       });

@@ -1420,6 +1420,7 @@ body {
 
 .nav-tab-btn,
 .day-tab-btn,
+.day-add-btn,
 .perspective-btn,
 .toolkit-tab-btn {
   scroll-snap-align: center;
@@ -1847,18 +1848,31 @@ body {
     font-size: 0.95rem;
   }
 
+  .spot-card-top {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .spot-main-info {
+    min-width: 0;
+  }
+
   .spot-index-badge {
-    width: 28px;
-    height: 28px;
-    font-size: 0.8rem;
+    width: 30px;
+    height: 30px;
+    font-size: 0.85rem;
+  }
+
+  .spot-actions {
+    margin-left: auto;
   }
 
   .spot-actions .btn-icon {
-    width: 40px;
-    height: 40px;
-    min-width: 40px;
-    min-height: 40px;
-    font-size: 1rem;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    font-size: 1.15rem;
   }
 }
 
